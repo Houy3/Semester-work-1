@@ -6,11 +6,10 @@ import models.User;
 
 import java.util.List;
 
-public interface UsersRepository {
+public interface UsersRepository extends Repository<User> {
 
-    void add(User user) throws DBException;
+    List<User> select_all_users() throws DBException;
 
-    List<User> getAllUsers() throws DBException;
+    void select_user_by_email_and_password(User user) throws DBException, NotFoundException;
 
-    void find_user_by_email_and_password(User user) throws DBException, NotFoundException;
 }

@@ -3,47 +3,31 @@ package repositories.Impl;
 import Exceptions.DBException;
 import Exceptions.NotFoundException;
 import models.User;
+import repositories.AbstractRepository;
 import repositories.UsersRepository;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersRepositoryImpl implements UsersRepository {
-
-    DataSource dataSource;
+public class UsersRepositoryImpl extends AbstractRepository<User> implements UsersRepository {
 
     public UsersRepositoryImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
+        super(dataSource);
     }
 
-    private static final String INSERT_USER = "insert into users(email, password_hash, access_rights_id) values (?, ?, ?);\n";
-    public void add(User user) throws DBException {
 
-        Long accessRights = get_access_rights_id_by_name(User.AccessRights.REGULAR);
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER)) {
-
-            preparedStatement.setString(1, user.getEmail());
-            preparedStatement.setString(2, user.getPasswordHash());
-            preparedStatement.setLong(3, accessRights);
-
-            int affectedRows = preparedStatement.executeUpdate();
-            if (affectedRows != 1) {
-                throw new DBException("Аномалия: изменилось " + affectedRows + " строк. ");
-            }
-
-        } catch (SQLException e) {
-            throw new DBException(e);
-        }
-    }
 
 
     //SQL
-    private static final String SELECT_ALL_FROM_USERS = "SELECT u.id, u.email, ar.name access_rights FROM users u left join access_rights ar on u.access_rights_id = ar.id";
-    public List<User> getAllUsers() throws DBException{
+    private static final String SELECT_ALL_FROM_USERS =
+            "SELECT * FROM users";
+
+    public List<User> select_all_users() throws DBException {
         List<User> users = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
@@ -54,11 +38,15 @@ public class UsersRepositoryImpl implements UsersRepository {
                     User user = new User();
                     user.setId(resultSet.getLong("id"));
                     user.setEmail(resultSet.getString("email"));
+                    user.setName(resultSet.getString("name"));
+                    user.setSurname(resultSet.getString("surname"));
+                    user.setNickname(resultSet.getString("nickname"));
                     try {
                         user.setAccessRights(User.AccessRights.valueOf(resultSet.getString("access_rights")));
                     } catch (IllegalArgumentException e) {
-                        throw new DBException("Неизвестные для модели права доступа " + resultSet.getString("email"));
+                        throw new DBException("Неизвестные для модели БД права доступа: " + resultSet.getString("access_rights"));
                     }
+
                     users.add(user);
                 }
             }
@@ -69,51 +57,115 @@ public class UsersRepositoryImpl implements UsersRepository {
         return users;
     }
 
-    private static final String SELECT_ID_AND_ACCESS_RIGHTS_FROM_USERS_BY_EMAIL_AND_PASSWORD =
-            "SELECT u.id, ar.name access_rights FROM users u left join access_rights ar on u.access_rights_id = ar.id " +
-            "WHERE u.email = ? AND u.password_hash = ?";
-    public void find_user_by_email_and_password(User user) throws DBException, NotFoundException {
+    private static final String SELECT_ALL_FROM_USERS_BY_ID =
+            "SELECT u.* FROM users u WHERE u.id = ?";
+
+    public void select_by_id(User user) throws DBException, NotFoundException {
+
+        if (user.getId() == null) {
+
+            throw new DBException("Необходимые поля не заполнены");
+        }
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ID_AND_ACCESS_RIGHTS_FROM_USERS_BY_EMAIL_AND_PASSWORD)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_FROM_USERS_BY_ID)) {
 
-            preparedStatement.setString(1, user.getEmail());
-            preparedStatement.setString(2, user.getPasswordHash());
+            int i = 1;
+            preparedStatement.setLong(i++, user.getId());
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    user.setId(resultSet.getLong("id"));
+                    user.setEmail(resultSet.getString("email"));
+                    user.setName(resultSet.getString("name"));
+                    user.setSurname(resultSet.getString("surname"));
+                    user.setNickname(resultSet.getString("nickname"));
                     try {
                         user.setAccessRights(User.AccessRights.valueOf(resultSet.getString("access_rights")));
                     } catch (IllegalArgumentException e) {
-                        throw new DBException("Неизвестные для модели права доступа " + resultSet.getString("email") + ". ");
+                        throw new DBException("Неизвестные для модели " + user.getClass().getName() + " права доступа: " + resultSet.getString("access_rights") + ". ");
                     }
                 } else {
                     throw new NotFoundException();
                 }
-            }
-        } catch (SQLException e) {
-            throw new DBException(e);
-        }
-    }
-
-
-
-    private static final String SELECT_ID_FROM_ACCESS_RIGHTS_BY_NAME = "select ar.id from access_rights ar where ar.name = ?";
-    private Long get_access_rights_id_by_name(User.AccessRights accessRights) throws DBException {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ID_FROM_ACCESS_RIGHTS_BY_NAME)) {
-
-            preparedStatement.setString(1, accessRights.name());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getLong("id");
-                } else {
-                    throw new DBException("Неизвестные для БД права доступа " + accessRights.name());
+                    throw new DBException("Аномалия: было найдено несколько пользователей. ");
                 }
             }
         } catch (SQLException e) {
             throw new DBException(e);
         }
     }
+
+    private static final String SELECT_ID_AND_ACCESS_RIGHTS_FROM_USERS_BY_EMAIL_AND_PASSWORD =
+            "SELECT u.* FROM users u " +
+                    "WHERE u.email = ? AND u.password_hash = ?";
+
+    public void select_user_by_email_and_password(User user) throws DBException, NotFoundException {
+
+        if (user.getEmail() == null ||
+                user.getPasswordHash() == null) {
+
+            throw new DBException("Необходимые поля не заполнены");
+        }
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ID_AND_ACCESS_RIGHTS_FROM_USERS_BY_EMAIL_AND_PASSWORD)) {
+
+            int i = 1;
+            preparedStatement.setString(i++, user.getEmail());
+            preparedStatement.setString(i++, user.getPasswordHash());
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    user.setId(resultSet.getLong("id"));
+                    user.setName(resultSet.getString("name"));
+                    user.setSurname(resultSet.getString("surname"));
+                    user.setNickname(resultSet.getString("nickname"));
+                    try {
+                        user.setAccessRights(User.AccessRights.valueOf(resultSet.getString("access_rights")));
+                    } catch (IllegalArgumentException e) {
+                        throw new DBException("Неизвестные для модели " + user.getClass().getName() + " права доступа: " + resultSet.getString("access_rights") + ". ");
+                    }
+                } else {
+                    throw new NotFoundException();
+                }
+                if (resultSet.next()) {
+                    throw new DBException("Аномалия: было найдено несколько пользователей при аутентификации. ");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DBException(e);
+        }
+    }
+
+
+    private static final String DELETE_USER_BY_ID = "delete from users where id = ?";
+
+    @Override
+    public void delete(User user) throws DBException, NotFoundException {
+        if (user.getId() == null) {
+
+            throw new DBException("Необходимые поля не заполнены");
+        }
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_USER_BY_ID)) {
+
+            int i = 1;
+            preparedStatement.setLong(i++, user.getId());
+
+            int affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new NotFoundException();
+            }
+
+            if (affectedRows != 1) {
+                throw new DBException("Аномалия: изменилось " + affectedRows + " строк. ");
+            }
+        } catch (SQLException e) {
+            throw new DBException(e);
+        }
+    }
+
 }

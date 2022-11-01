@@ -2,9 +2,9 @@ package webapp.Pages;
 
 import Exceptions.DBException;
 import Exceptions.NotUniqueException;
-import Service.UsersService;
+import services.UsersService;
 import models.User;
-import Service.Impl.UsersServiceImpl;
+import services.Impl.UsersServiceImpl;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +47,7 @@ public class RegistrationPage extends Page {
         if (error.equals("")) {
             try {
                 UsersService userService = (UsersServiceImpl) getServletContext().getAttribute("userService");
-                userService.singUp(user);
+                userService.add(user);
                 req.getSession().setAttribute("user", user);
                 resp.sendRedirect(req.getContextPath() + "/account");
                 return;

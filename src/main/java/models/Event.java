@@ -1,9 +1,18 @@
 package models;
 
-public class Event {
+import java.util.List;
 
-    private Long id;
-    private Timetable timetable;
-    private String name;
-    private String description;
+public class Event{
+
+    private Long noteId;
+
+    private List<Period> periods;
+    private String place;
+    private String link;
+
+    public enum Repeatability {
+        DAY,
+        WEEK,
+        MONTH
+    }
 }

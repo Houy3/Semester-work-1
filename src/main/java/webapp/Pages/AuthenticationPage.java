@@ -2,9 +2,9 @@ package webapp.Pages;
 
 import Exceptions.DBException;
 import Exceptions.NotFoundException;
-import Service.UsersService;
+import services.UsersService;
 import models.User;
-import Service.Impl.UsersServiceImpl;
+import services.Impl.UsersServiceImpl;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
