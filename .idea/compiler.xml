@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Registration2" />
         <module name="Authentication" />
+        <module name="Semester-work-1" />
       </profile>
     </annotationProcessing>
   </component>
