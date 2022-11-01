@@ -11,5 +11,6 @@ public @interface Id {
 
     boolean isInsertIncludeId() default false;
 
-    boolean isInsertReturnId() default true;
+
+    String secondIdField() default "";
 }

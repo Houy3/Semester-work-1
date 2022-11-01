@@ -16,20 +16,18 @@ public class Timetable {
     private String name;
 
 
-    @Getter(field_name = "id")
+
     public Long getId() {
         return id;
     }
 
-    @Setter(field_name = "id")
     public void setId(Long id) {
         this.id = id;
     }
 
-    @Getter(field_name = "name")
+
     public String getName() { return name;}
 
-    @Setter(field_name = "name")
     public void setName(String name) {
         this.name = name;
     }

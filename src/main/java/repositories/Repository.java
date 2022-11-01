@@ -1,17 +1,35 @@
 package repositories;
 
-import Exceptions.DBException;
-import Exceptions.NotFoundException;
-import Exceptions.NotUniqueException;
-import models.Note;
+import exceptions.DBException;
+import exceptions.NotFoundException;
+import exceptions.NotNullException;
+import models.Timetable;
+import models.User;
 
-public interface Repository<T> {
+import java.util.List;
+import java.util.Map;
 
-    void insert(T t) throws DBException;
+public interface Repository {
 
-    void update(T t) throws NotFoundException, DBException;
+    void insert(Object object) throws DBException, NotNullException;
 
-    void delete(T t) throws NotFoundException, DBException;
+    void update(Object object) throws NotFoundException, DBException, NotNullException;
 
-    void select_by_id(T t) throws NotFoundException, DBException;
+    void delete(Object object) throws NotFoundException, DBException, NotNullException;
+
+    void select_by_id(Object object) throws NotFoundException, DBException, NotNullException;
+
+    //----------------------------------------------------------
+
+    //User
+    List<User> select_all_users() throws DBException;
+
+    User select_user_by_email_and_password(String email, String password) throws DBException, NotFoundException, NotNullException;
+
+    //Timetable
+    Map<User, Timetable.AccessRights> select_users_id_by_timetable(Timetable timetable) throws DBException;
+
+    Map<Timetable, Timetable.AccessRights> select_timetables_by_user(User user) throws DBException;
+
+
 }

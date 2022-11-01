@@ -1,10 +1,10 @@
 package webapp.Pages;
 
-import Exceptions.DBException;
-import Exceptions.NotFoundException;
-import services.UsersService;
+import exceptions.DBException;
+import exceptions.NotFoundException;
+import exceptions.NotNullException;
+import services.Service;
 import models.User;
-import services.Impl.UsersServiceImpl;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,21 +32,21 @@ public class AuthenticationPage extends Page {
         User user = new User();
         try {
             user.setEmail(req.getParameter("email"));
-            user.setPassword(req.getParameter("password"));
+            user.setPasswordHash(req.getParameter("password"));
         } catch (IllegalArgumentException e) {
             error = error + e.getMessage() + "\n";
         }
 
         if (error.equals("")) {
             try {
-                UsersService userService = (UsersServiceImpl) getServletContext().getAttribute("userService");
-                userService.singIn(user);
+                Service service = (Service) getServletContext().getAttribute("service");
+                service.userSingIn(req.getParameter("email"), req.getParameter("password"));
                 req.getSession().setAttribute("user", user);
                 resp.sendRedirect(req.getContextPath() + "/account");
                 return;
             } catch (NotFoundException e) {
                 error = "Пользователь с таким логином и паролем не найден";
-            } catch (IllegalArgumentException | DBException e) {
+            } catch (IllegalArgumentException | DBException | NotNullException e) {
                 error(resp,e,500);
             }
         }

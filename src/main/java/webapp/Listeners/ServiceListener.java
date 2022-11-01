@@ -1,15 +1,23 @@
 package webapp.Listeners;
 
-import services.Impl.UsersServiceImpl;
 import jdbc.SimpleDataSource;
-import repositories.Impl.UsersRepositoryImpl;
-import repositories.UsersRepository;
+import models.encryptors.Encryptor;
+import models.encryptors.PasswordEncryptor;
+import models.validators.EmailValidator;
+import models.validators.NicknameValidator;
+import models.validators.PasswordValidator;
+import models.validators.Validator;
+import repositories.Repository;
+import repositories.RepositoryImpl;
+import services.Service;
+import services.ServiceImpl;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
 @WebListener
@@ -21,7 +29,7 @@ public class ServiceListener implements ServletContextListener {
         //userService
         Properties properties = new Properties();
         try {
-            properties.load(this.getClass().getResourceAsStream("/db.properties"));
+            properties.load(this.getClass().getResourceAsStream("/app.properties"));
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -30,10 +38,31 @@ public class ServiceListener implements ServletContextListener {
                 properties.getProperty("db.username"),
                 properties.getProperty("db.password")
         );
-//        UsersRepository usersRepository = new UsersRepositoryImpl(dataSource);
-//        UsersServiceImpl usersService = new UsersServiceImpl(usersRepository);
+        Repository repository = new RepositoryImpl(dataSource);
+        Service usersService = new ServiceImpl(repository);
 
-//        sce.getServletContext().setAttribute("userService", usersService);
+        sce.getServletContext().setAttribute("service", usersService);
+
+
+        final Validator<String> emailValidator = new EmailValidator(properties.getProperty("email.regexp"));
+        sce.getServletContext().setAttribute("emailValidator", emailValidator);
+
+        try {
+            final Validator<String> passwordValidator = new PasswordValidator(
+                    properties.getProperty("password.regexp"),
+                    Integer.parseInt(properties.getProperty("password.minLength")),
+                    Integer.parseInt(properties.getProperty("password.maxLength"))
+            );
+            sce.getServletContext().setAttribute("passwordValidator", passwordValidator);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Неверный формат длины пароля");
+        }
+
+        final Encryptor<String> passwordEncryptor = new PasswordEncryptor();
+        sce.getServletContext().setAttribute("passwordEncryptor", passwordEncryptor);
+
+        final Validator<String> nicknameValidator = new NicknameValidator(properties.getProperty("nickname.regexp"));
+        sce.getServletContext().setAttribute("nicknameValidator", nicknameValidator);
 
     }
 

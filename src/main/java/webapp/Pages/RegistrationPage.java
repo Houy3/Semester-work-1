@@ -1,10 +1,11 @@
 package webapp.Pages;
 
-import Exceptions.DBException;
-import Exceptions.NotUniqueException;
-import services.UsersService;
+import exceptions.DBException;
+import exceptions.NotNullException;
+import exceptions.NotUniqueException;
+import services.Service;
+import services.ServiceImpl;
 import models.User;
-import services.Impl.UsersServiceImpl;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +34,7 @@ public class RegistrationPage extends Page {
         User user = new User();
         try {
             user.setEmail(req.getParameter("email"));
-            user.setPassword(req.getParameter("password"));
+            user.setPasswordHash(req.getParameter("password"));
         } catch (IllegalArgumentException e) {
             error = error + e.getMessage() + "\n";
         }
@@ -46,14 +47,14 @@ public class RegistrationPage extends Page {
 
         if (error.equals("")) {
             try {
-                UsersService userService = (UsersServiceImpl) getServletContext().getAttribute("userService");
-                userService.add(user);
+                Service service = (ServiceImpl) getServletContext().getAttribute("service");
+                service.add(user);
                 req.getSession().setAttribute("user", user);
                 resp.sendRedirect(req.getContextPath() + "/account");
                 return;
             } catch (NotUniqueException e) {
                 error = "Логин занят";
-            } catch (IllegalArgumentException | DBException e) {
+            } catch (IllegalArgumentException | DBException | NotNullException e) {
                 error(resp, e, 500);
             }
         }

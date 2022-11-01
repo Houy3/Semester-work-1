@@ -6,19 +6,19 @@ import java.util.List;
 public class SelectByIdQuery extends Query {
 
     private List<Field> fields;
-    private Field fieldId;
+    private List<Field> fieldsId;
 
     public List<Field> getFields() {
         return fields;
     }
 
-    public Field getFieldId() {
-        return fieldId;
+    public List<Field> getFieldsId() {
+        return fieldsId;
     }
 
-    public SelectByIdQuery(String query, List<Field> fields, Field fieldId) {
+    public SelectByIdQuery(String query, List<Field> fields, List<Field> fieldsId) {
         super(query);
         this.fields = fields;
-        this.fieldId = fieldId;
+        this.fieldsId = fieldsId;
     }
 }

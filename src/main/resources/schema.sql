@@ -16,6 +16,8 @@ create table users(
 insert into users(email, password_hash, nickname, access_rights) values ('admin@mail.ru', '21232F297A57A5A743894A0E4A801FC3', 'admin', 'ADMIN');
 
 
+
+
 create table timetables(
     id bigserial primary key,
     name varchar not null

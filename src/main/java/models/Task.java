@@ -9,7 +9,7 @@ import java.util.Objects;
 @Table(name = "tasks")
 public class Task{
 
-    @Id(isInsertIncludeId = true, isInsertReturnId = false)
+    @Id(isInsertIncludeId = true)
     @Unique
     @NotNull
     @Column(name = "note_id")
@@ -24,32 +24,29 @@ public class Task{
     private Date deadlineTime;
 
 
-    @Getter(field_name = "id")
+
     public Long getNoteId() {
         return noteId;
     }
 
-    @Setter(field_name = "id")
     public void setNoteId(Long noteId) {
         this.noteId = noteId;
     }
 
-    @Getter(field_name = "notificationStartTime")
+
     public Date getNotificationStartTime() {
         return notificationStartTime;
     }
 
-    @Setter(field_name = "notificationStartTime")
     public void setNotificationStartTime(Date notificationStartTime) {
         this.notificationStartTime = notificationStartTime;
     }
 
-    @Getter(field_name = "deadlineTime")
+
     public Date getDeadlineTime() {
         return deadlineTime;
     }
 
-    @Setter(field_name = "deadlineTime")
     public void setDeadlineTime(Date deadlineTime) {
         this.deadlineTime = deadlineTime;
     }

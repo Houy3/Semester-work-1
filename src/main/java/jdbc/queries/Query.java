@@ -1,7 +1,7 @@
 package jdbc.queries;
 
 
-public  class Query {
+public abstract class Query {
 
     private String query;
 
@@ -11,5 +11,10 @@ public  class Query {
 
     public Query(String query) {
         this.query = query;
+    }
+
+    @Override
+    public String toString() {
+        return query;
     }
 }

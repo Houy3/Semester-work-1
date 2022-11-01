@@ -3,7 +3,7 @@ package jdbc.queries;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class UpdateQuery extends Query{
+public class SelectUniqueCheck extends Query {
 
     private List<Field> fields;
 
@@ -11,7 +11,7 @@ public class UpdateQuery extends Query{
         return fields;
     }
 
-    public UpdateQuery(String query, List<Field> fields) {
+    public SelectUniqueCheck(String query, List<Field> fields) {
         super(query);
         this.fields = fields;
     }

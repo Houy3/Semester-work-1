@@ -1,4 +1,4 @@
-package Exceptions;
+package exceptions;
 
 public class SQLGeneratorException extends Exception{
     public SQLGeneratorException() {
