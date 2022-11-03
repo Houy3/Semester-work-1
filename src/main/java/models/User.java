@@ -7,12 +7,10 @@ import java.util.Objects;
 @Table(name = "users")
 public class User {
 
-    @Id()
+    @Unique
     @Column(name = "id")
     private Long id;
 
-
-    @NotNull
     @Unique
     @Column(name = "email")
     private String email;
@@ -27,7 +25,6 @@ public class User {
     @Column(name = "surname")
     private String surname;
 
-    @NotNull
     @Unique
     @Column(name = "nickname")
     private String nickname;

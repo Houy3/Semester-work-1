@@ -2,31 +2,27 @@ package jdbc;
 
 import exceptions.SQLGeneratorException;
 import jdbc.SQLAnnotations.Column;
-import jdbc.SQLAnnotations.Id;
 import jdbc.SQLAnnotations.Table;
 import jdbc.SQLAnnotations.Unique;
 import jdbc.queries.*;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SQLGenerator {
 
 
-    public static InsertQuery insert(Class tClass) throws SQLGeneratorException {
-        StringBuilder query = new StringBuilder();
+    public static InsertQuery insert(Class tClass, Field uniqueField) throws SQLGeneratorException {
+        uniqueFieldCheck(tClass, uniqueField);
 
+        StringBuilder query = new StringBuilder();
         query.append("insert into ").append(getTableName(tClass));
 
-
-        List<Field> fields = getColumnFieldsWithoutIdFields(tClass);
-        List<Field> fieldsId = getFieldsId(tClass);
-        Id mainId = fieldsId.get(0).getAnnotation(Id.class);
-        if (mainId.isInsertIncludeId()) {
-            fields.addAll(0, fieldsId);
+        List<Field> fields = getColumnFields(tClass);
+        List<Field> uniqueFields = getUniqueColumnFields(tClass, uniqueField);
+        if (!((Table) tClass.getAnnotation(Table.class)).isInsertIncludeUniqueField()) {
+            fields.removeAll(uniqueFields);
         }
         List<Column> columns = getColumns(fields);
 
@@ -38,72 +34,91 @@ public class SQLGenerator {
         query.append(")");
 
         //вставка returning id
-        if (!mainId.isInsertIncludeId()) {
-            query.append(" returning ");
-            appendRepeat(", ", query, getColumns(fieldsId), 0);
-        }
 
-        return new InsertQuery(query.toString(), fields, fieldsId);
+        query.append(" returning ");
+        appendRepeat(", ", query, getColumns(uniqueFields), 0);
+
+
+        return new InsertQuery(query.toString(), fields, uniqueFields);
     }
 
-    public static UpdateQuery update(Class tClass) throws SQLGeneratorException {
-        StringBuilder query = new StringBuilder();
+    public static UpdateQuery update(Class tClass, Field uniqueField) throws SQLGeneratorException {
+        uniqueFieldCheck(tClass, uniqueField);
 
+        StringBuilder query = new StringBuilder();
         query.append("update ").append(getTableName(tClass)).append(" set ");
 
-
-        List<Field> fields = getColumnFieldsWithoutIdFields(tClass);
-        List<Field> fieldsId = getFieldsId(tClass);
+        List<Field> fields = getColumnFields(tClass);
+        List<Field> uniqueFields = getUniqueColumnFields(tClass, uniqueField);
 
         appendRepeat(" = ?, ", query, getColumns(fields), 4);
         query.append(" where ");
-        appendRepeat(" = ? and ", query, getColumns(fieldsId), 4);
+        appendRepeat(" = ? and ", query, getColumns(uniqueFields), 4);
 
-        fields.addAll(fieldsId);
         return new UpdateQuery(query.toString(), fields);
     }
 
-    public static DeleteQuery delete(Class tClass) throws SQLGeneratorException {
+    public static DeleteQuery delete(Class tClass, Field uniqueField) throws SQLGeneratorException {
         StringBuilder query = new StringBuilder();
 
-        List<Field> fieldsId = getFieldsId(tClass);
-        query.append("delete from ").append(getTableName(tClass)).append(" where ");
-        appendRepeat(" = ? and ", query, getColumns(fieldsId), 4);
+        List<Field> uniqueFields = getUniqueColumnFields(tClass, uniqueField);
 
-        return new DeleteQuery(query.toString(), fieldsId);
+        query.append("delete from ").append(getTableName(tClass)).append(" where ");
+        appendRepeat(" = ? and ", query, getColumns(uniqueFields), 4);
+
+        return new DeleteQuery(query.toString(), uniqueFields);
     }
 
-    public static SelectByIdQuery selectById(Class tClass) throws SQLGeneratorException {
+    public static SelectByIdQuery selectByUniqueField(Class tClass, Field uniqueField) throws SQLGeneratorException {
+        uniqueFieldCheck(tClass, uniqueField);
         StringBuilder query = new StringBuilder();
 
-        query.append("select ");
+        query.append("select * from ").append(getTableName(tClass)).append(" where ");
 
-        List<Field> fields = getColumnFieldsWithoutIdFields(tClass);
-        List<Field> fieldsId = getFieldsId(tClass);
+        List<Field> fields = getColumnFields(tClass);
+        List<Field> uniqueFields = getUniqueColumnFields(tClass, uniqueField);
 
-        appendRepeat(", ", query, getColumns(fields), 0);
+        appendRepeat(" = ? and ", query, getColumns(uniqueFields), 4);
 
-        query.append(" from ").append(getTableName(tClass)).append(" where ");
-        appendRepeat(" = ? and ", query, getColumns(fieldsId), 4);
-
-        return new SelectByIdQuery(query.toString(), fields, fieldsId);
+        return new SelectByIdQuery(query.toString(), fields, uniqueFields);
     }
 
     public static Optional<SelectUniqueCheck> selectUniqueCheck(Class tClass) throws SQLGeneratorException {
+        if (tClass == null) {
+            throw new SQLGeneratorException("Класс не передан. ");
+        }
+
         StringBuilder query = new StringBuilder();
 
         query.append("select * from ").append(getTableName(tClass)).append(" where ");;
 
-        List<Field> fields =  getUniqueColumnFields(tClass);
-        List<Column> columns = getColumns(fields);
+        Set<Integer> groupsIn = new HashSet<>();
 
-        if (columns.isEmpty()) {
+        List<Field> uniqueFields = new ArrayList<>();
+        for (Field field : getUniqueColumnFields(tClass)) {
+            int group = field.getAnnotation(Unique.class).group();
+            if (group == -1) {
+                query.append(field.getAnnotation(Column.class).name()).append(" = ? or ");
+                uniqueFields.add(field);
+                continue;
+            }
+            if (groupsIn.contains(group)) {
+                continue;
+            }
+            List<Field> uniqueFieldsInOneGroup = getUniqueColumnFields(tClass, field);
+            query.append("(");
+            appendRepeat(" = ? and ", query, getColumns(uniqueFieldsInOneGroup), 4);
+            query.append(") or ");
+            groupsIn.add(group);
+            uniqueFields.addAll(uniqueFieldsInOneGroup);
+        }
+        query.delete(query.length() - 4, query.length());
+
+        if (uniqueFields.isEmpty()) {
             return Optional.empty();
-        } else {
-            appendRepeat(" = ? or ", query, columns, 4);
         }
 
-        return Optional.of(new SelectUniqueCheck(query.toString(), fields));
+        return Optional.of(new SelectUniqueCheck(query.toString(), uniqueFields));
     }
 
     private static void appendRepeat(String syn, StringBuilder query, List<Column> from, int leaveLeft) {
@@ -116,6 +131,7 @@ public class SQLGenerator {
         query.delete(query.lastIndexOf(syn) + leaveLeft,query.lastIndexOf(syn) + syn.length());
     }
 
+    /** Возвращает имя таблицы **/
     private static String getTableName(Class tClass) throws SQLGeneratorException {
         Table table = (Table) tClass.getAnnotation(Table.class);
         if (table == null) {
@@ -124,32 +140,8 @@ public class SQLGenerator {
         return table.name();
     }
 
-    private static List<Field> getFieldsId(Class tClass) throws SQLGeneratorException {
-
-        List<Field> fieldsId = Arrays.stream(tClass.getDeclaredFields())
-         .filter(field -> field.getAnnotation(Column.class) != null && field.getAnnotation(Id.class) != null)
-         .collect(Collectors.toList());
-
-        if (fieldsId.isEmpty()) {
-            throw new SQLGeneratorException("У модели " + tClass.getName() + " не найдено айди. ");
-        }
-        if (fieldsId.size() > 1) {
-            throw new SQLGeneratorException("У модели " + tClass.getName() + " найдено несколько айди. ");
-        }
-
-        String secondIdFieldName = fieldsId.get(0).getAnnotation(Id.class).secondIdField();
-        if (!secondIdFieldName.equals("")) {
-            try {
-                fieldsId.add(tClass.getDeclaredField(secondIdFieldName));
-            } catch (NoSuchFieldException e) {
-                throw new SQLGeneratorException("У модели " + tClass.getName() + " второе айди помечено неверно. ");
-            }
-        }
-
-        return fieldsId;
-    }
-
-    private static List<Field> getColumnFieldsWithoutIdFields(Class tClass) throws SQLGeneratorException {
+    /** Возвращает все поля, помеченные аннотацией Column **/
+    private static List<Field> getColumnFields(Class tClass) throws SQLGeneratorException {
 
         List<Field> fields = Arrays.stream(tClass.getDeclaredFields())
                 .filter(field -> field.getAnnotation(Column.class) != null)
@@ -159,32 +151,64 @@ public class SQLGenerator {
             throw new SQLGeneratorException("У модели " + tClass.getName() + " не заполнены столбцы. ");
         }
 
-        for (Field field : fields) {
-            Id id = field.getAnnotation(Id.class);
-            if (id != null) {
-                fields.remove(field);
-                if (!id.secondIdField().equals("")) {
-                    try {
-                        fields.remove(tClass.getDeclaredField(id.secondIdField()));
-                    } catch (NoSuchFieldException e) {
-                        throw new SQLGeneratorException("У модели " + tClass.getName() + " неправильно заполнен второй айди. ");
-                    }
-                }
-                break;
-            }
-        }
-
         return fields;
     }
 
+    /** Для каждого поля возвращает аннотацию Column **/
     private static List<Column> getColumns(List<Field> fields) {
         return fields.stream().map(f -> f.getAnnotation(Column.class)).collect(Collectors.toList());
     }
 
+    /** Возвращает все поля, помеченные аннотациями Column и Unique, учитывая group() в Unique **/
     private static List<Field> getUniqueColumnFields(Class tClass) throws SQLGeneratorException {
-        return Arrays.stream(tClass.getDeclaredFields())
-                .filter(field -> field.getAnnotation(Column.class) != null && field.getAnnotation(Unique.class) != null)
+        return getColumnFields(tClass).stream()
+                .filter(f -> f.getAnnotation(Unique.class) != null)
                 .collect(Collectors.toList());
+    }
+
+    /** Возвращает все поля, помеченные аннотациями Column и Unique, в той же group() для Unique **/
+    private static List<Field> getUniqueColumnFields(Class tClass, Field uniqueField) throws SQLGeneratorException {
+        List<Field> uniqueFields = new ArrayList<>();
+
+        int group = uniqueField.getAnnotation(Unique.class).group();
+        if (group == -1) {
+            uniqueFields.add(uniqueField);
+        } else {
+            for (Field field : getColumnFields(tClass)) {
+                if (field.getAnnotation(Unique.class) == null) {
+                    continue;
+                }
+                if (field.getAnnotation(Unique.class).group() == group) {
+                    uniqueFields.add(field);
+                }
+            }
+        }
+
+        return uniqueFields;
+    }
+
+
+    /** Проверка, что класс не null
+                , что уникальное поле не null
+                , что уникальное поле принадлежит объекту
+                и что уникальное поле помечено аннотациями Column или Unique */
+    private static void uniqueFieldCheck(Class tClass, Field uniqueField) throws SQLGeneratorException {
+        if (tClass == null) {
+            throw new SQLGeneratorException("Класс не передан. ");
+        }
+        if (uniqueField == null) {
+            throw new SQLGeneratorException("Поле не передано. ");
+        }
+        if (!List.of(tClass.getDeclaredFields()).contains(uniqueField) ) {
+            throw new SQLGeneratorException("Поле " + uniqueField.getName() + " у объекта " + tClass.getName() + " не найдено." );
+        }
+        //аннотацией " + Unique.class.getName() + ". "
+        if (uniqueField.getAnnotation(Column.class) == null) {
+            throw new SQLGeneratorException("Поле " + uniqueField.getName() + " у объекта " + tClass.getName() + " не помечено аннотацией " + Column.class.getName() + ". ");
+        }
+        if (uniqueField.getAnnotation(Unique.class) == null) {
+            throw new SQLGeneratorException("Поле " + uniqueField.getName() + " у объекта " + tClass.getName() + " не помечено аннотацией " + Unique.class.getName() + ". ");
+        }
     }
 
 

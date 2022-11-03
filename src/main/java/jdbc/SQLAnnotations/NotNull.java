@@ -10,3 +10,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NotNull {
 }
+//поля, отмеченные полем Unique подразумевают собой NotNull

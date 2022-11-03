@@ -1,8 +1,9 @@
 package webapp.Pages;
 
 import exceptions.DBException;
-import exceptions.NotNullException;
+import exceptions.NullException;
 import exceptions.NotUniqueException;
+import exceptions.ServiceException;
 import services.Service;
 import services.ServiceImpl;
 import models.User;
@@ -48,13 +49,13 @@ public class RegistrationPage extends Page {
         if (error.equals("")) {
             try {
                 Service service = (ServiceImpl) getServletContext().getAttribute("service");
-                service.add(user);
+                service.add(user, "id");
                 req.getSession().setAttribute("user", user);
                 resp.sendRedirect(req.getContextPath() + "/account");
                 return;
             } catch (NotUniqueException e) {
                 error = "Логин занят";
-            } catch (IllegalArgumentException | DBException | NotNullException e) {
+            } catch (IllegalArgumentException | DBException | NullException | ServiceException e) {
                 error(resp, e, 500);
             }
         }

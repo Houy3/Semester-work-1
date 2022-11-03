@@ -6,12 +6,10 @@ import jdbc.SQLAnnotations.*;
 import java.util.Date;
 import java.util.Objects;
 
-@Table(name = "tasks")
+@Table(name = "tasks", isInsertIncludeUniqueField = true)
 public class Task{
 
-    @Id(isInsertIncludeId = true)
     @Unique
-    @NotNull
     @Column(name = "note_id")
     private Long noteId;
 

@@ -1,14 +1,11 @@
 package services;
 
-import exceptions.DBException;
-import exceptions.NotFoundException;
-import exceptions.NotNullException;
-import exceptions.NotUniqueException;
+import exceptions.*;
 import models.*;
 import repositories.RepositoryImpl;
 import repositories.Repository;
-import services.Service;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,55 +20,63 @@ public class ServiceImpl implements Service {
         this.repository = (RepositoryImpl) repository;
     }
 
-    private void uniqueCheck(Object object) throws NotUniqueException, DBException, NotNullException {
+    private void uniqueCheck(Object object) throws NotUniqueException, DBException, NullException {
         repository.uniqueCheck(object);
     }
 
     //нет проверок внешнего ключа
 
     @Override
-    public void add(Object object) throws NotUniqueException, DBException, NotNullException {
+    public void add(Object object, String uniqueFieldName) throws NotUniqueException, DBException, NullException, ServiceException {
         uniqueCheck(object);
-        repository.insert(object);
+
+        repository.insert(object, getField(object, uniqueFieldName));
     }
 
     @Override
-    public void change(Object object) throws NotFoundException, DBException, NotNullException {
-        repository.update(object);
+    public void change(Object object, String uniqueFieldName) throws NotFoundException, DBException, NullException, NotUniqueException, ServiceException {
+        uniqueCheck(object);
+        repository.update(object, getField(object, uniqueFieldName));
     }
 
     @Override
-    public void delete(Object object) throws NotFoundException, DBException, NotNullException {
-        repository.delete(object);
+    public void delete(Object object, String uniqueFieldName) throws NotFoundException, DBException, NullException, ServiceException {
+        repository.delete(object, getField(object, uniqueFieldName));
     }
 
     @Override
-    public void getById(Object object) throws NotFoundException, DBException, NotNullException {
-        repository.select_by_id(object);
+    public void getByUniqueField(Object object, String uniqueFieldName) throws NotFoundException, DBException, NullException, ServiceException {
+        repository.selectByUniqueField(object, getField(object, uniqueFieldName));
     }
 
     //------------------------------------------------------------
 
+
+    private static Field getField(Object object, String uniqueFieldName) throws ServiceException {
+        Field uniqueField;
+        try {
+            uniqueField = object.getClass().getDeclaredField(uniqueFieldName);
+        } catch (NoSuchFieldException e) {
+            throw new ServiceException("Не найдено поле у класса " + object.getClass());
+        }
+        return uniqueField;
+    }
+
     //User
     @Override
-    public User userSingIn(String email, String password) throws NotFoundException, DBException, NotNullException {
-        return repository.select_user_by_email_and_password(email, password);
+    public User userSingIn(String email, String password) throws NotFoundException, DBException, NullException {
+        return repository.selectUserByEmailAndPassword(email, password);
     }
 
     @Override
     public List<User> getAllUsers() throws DBException {
-        return repository.select_all_users();
+        return repository.selectAllUsers();
     }
 
     //User_Timetable
     @Override
-    public Map<User, Timetable.AccessRights> getUsersIdForTimetable(Timetable timetable) throws DBException {
-        return repository.select_users_id_by_timetable(timetable);
-    }
-
-    @Override
-    public Map<Timetable, Timetable.AccessRights> getTimetablesForUser(User user) throws DBException {
-        return repository.select_timetables_by_user(user);
+    public Map<Timetable, Timetable.AccessRights> getTimetablesForUser(Long user_id) throws DBException {
+        return repository.selectTimetablesByUser(user_id);
     }
 
     @Override
@@ -153,7 +158,7 @@ public class ServiceImpl implements Service {
     }
 
     @Override
-    public void addPeriods(Period period, Event.Repeatability repeatability, Date endTime) throws NotUniqueException, DBException, NotNullException {
+    public void addPeriods(Period period, Event.Repeatability repeatability, Date endTime) throws NotUniqueException, DBException, NullException {
 
     }
 

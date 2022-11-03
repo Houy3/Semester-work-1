@@ -5,10 +5,10 @@ import jdbc.SQLAnnotations.*;
 import java.util.Date;
 import java.util.Objects;
 
-@Table(name="periods")
+@Table(name="periods", isInsertIncludeUniqueField = true)
 public class Period {
 
-    @Id(isInsertIncludeId = true)
+    @Unique
     @NotNull
     @Column(name = "event_id")
     private Long eventId;
@@ -25,10 +25,10 @@ public class Period {
     @Column(name = "group_id")
     private Long groupId;
 
+
     public Long getEventId() {
         return eventId;
     }
-
     public void setEventId(Long eventId) {
         this.eventId = eventId;
     }
@@ -36,7 +36,6 @@ public class Period {
     public Date getStartTime() {
         return startTime;
     }
-
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
@@ -44,7 +43,6 @@ public class Period {
     public Date getEndTime() {
         return endTime;
     }
-
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
@@ -52,7 +50,6 @@ public class Period {
     public Long getGroupId() {
         return groupId;
     }
-
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
     }

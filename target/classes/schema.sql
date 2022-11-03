@@ -17,17 +17,19 @@ insert into users(email, password_hash, nickname, access_rights) values ('admin@
 
 
 
-
 create table timetables(
     id bigserial primary key,
     name varchar not null
 );
 
 
+
 create table users_timetables(
     user_id bigint references users(id) on delete cascade ,
-    timetable_id int references timetables(id) on delete cascade ,
-    access_rights varchar check ( access_rights in ('READER', 'WRITER', 'OWNER') )
+    timetable_id bigint references timetables(id) on delete cascade ,
+    access_rights varchar check ( access_rights in ('READER', 'WRITER', 'OWNER') ),
+
+    unique (user_id, timetable_id)
 );
 
 create table notes(
@@ -39,19 +41,19 @@ create table notes(
 );
 
 create table tasks(
-    note_id bigint unique references notes(id) on delete cascade ,
+    note_id bigint primary key references notes(id) on delete cascade ,
     notification_start_time timestamp not null,
     deadline_time timestamp not null
 );
 
 create table events(
-    note_id bigint unique references notes(id) on delete cascade ,
+    note_id bigint primary key references notes(id) on delete cascade ,
     place varchar,
     link varchar
 );
 
 create table periods(
-    event_id bigint references events(note_id) on delete cascade ,
+    event_id bigint primary key references events(note_id) on delete cascade ,
     start_time timestamp not null,
     end_time timestamp not null,
     group_id int

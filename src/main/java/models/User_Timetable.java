@@ -4,15 +4,14 @@ import jdbc.SQLAnnotations.*;
 
 import java.util.Objects;
 
-@Table(name = "users_timetables")
+@Table(name = "users_timetables", isInsertIncludeUniqueField = true)
 public class User_Timetable {
 
-    @Id(isInsertIncludeId = true, secondIdField = "timetableId")
-    @NotNull
+    @Unique(group = 1)
     @Column(name = "user_id")
     private Long userId;
 
-    @NotNull
+    @Unique(group = 1)
     @Column(name = "timetable_id")
     private Long timetableId;
 

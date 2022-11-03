@@ -4,15 +4,12 @@ import jdbc.SQLAnnotations.*;
 
 import java.util.Objects;
 
-@Table(name = "events")
+@Table(name = "events", isInsertIncludeUniqueField = true)
 public class Event {
 
-    @Id(isInsertIncludeId = true)
     @Unique
-    @NotNull
     @Column(name = "note_id")
     private Long noteId;
-
 
     @Column(name = "place")
     private String place;
@@ -82,4 +79,6 @@ public class Event {
         QUARTER,
         YEAR
     }
+
+
 }

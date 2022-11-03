@@ -5,14 +5,14 @@ import java.util.List;
 
 public class DeleteQuery extends Query{
 
-    private List<Field> fieldsId;
+    private List<Field> uniqueFields;
 
-    public List<Field> getFieldsId() {
-        return fieldsId;
+    public List<Field> getUniqueFields() {
+        return uniqueFields;
     }
 
-    public DeleteQuery(String query, List<Field> fieldsId) {
+    public DeleteQuery(String query, List<Field> uniqueFields) {
         super(query);
-        this.fieldsId = fieldsId;
+        this.uniqueFields = uniqueFields;
     }
 }

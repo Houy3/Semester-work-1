@@ -5,14 +5,14 @@ import java.util.List;
 
 public class SelectUniqueCheck extends Query {
 
-    private List<Field> fields;
+    private List<Field> uniqueFields;
 
-    public List<Field> getFields() {
-        return fields;
+    public List<Field> getUniqueFields() {
+        return uniqueFields;
     }
 
-    public SelectUniqueCheck(String query, List<Field> fields) {
+    public SelectUniqueCheck(String query, List<Field> uniqueFields) {
         super(query);
-        this.fields = fields;
+        this.uniqueFields = uniqueFields;
     }
 }

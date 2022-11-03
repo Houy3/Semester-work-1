@@ -6,19 +6,19 @@ import java.lang.reflect.Field;
 public class InsertQuery extends Query {
 
     private List<Field> fields;
-    private List<Field> fieldsId;
+    private List<Field> uniqueFields;
 
     public List<Field> getFields() {
         return fields;
     }
 
-    public List<Field> getFieldsId() {
-        return fieldsId;
+    public List<Field> getUniqueFields() {
+        return uniqueFields;
     }
 
-    public InsertQuery(String query, List<Field> fields, List<Field> fieldsId) {
+    public InsertQuery(String query, List<Field> fields, List<Field> uniqueFields) {
         super(query);
         this.fields = fields;
-        this.fieldsId = fieldsId;
+        this.uniqueFields = uniqueFields;
     }
 }

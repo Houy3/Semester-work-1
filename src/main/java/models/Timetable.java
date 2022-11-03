@@ -7,7 +7,7 @@ import java.util.Objects;
 @Table(name = "timetables")
 public class Timetable {
 
-    @Id
+    @Unique
     @Column(name = "id")
     private Long id;
 

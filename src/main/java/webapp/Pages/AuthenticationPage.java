@@ -2,7 +2,7 @@ package webapp.Pages;
 
 import exceptions.DBException;
 import exceptions.NotFoundException;
-import exceptions.NotNullException;
+import exceptions.NullException;
 import services.Service;
 import models.User;
 
@@ -46,7 +46,7 @@ public class AuthenticationPage extends Page {
                 return;
             } catch (NotFoundException e) {
                 error = "Пользователь с таким логином и паролем не найден";
-            } catch (IllegalArgumentException | DBException | NotNullException e) {
+            } catch (IllegalArgumentException | DBException | NullException e) {
                 error(resp,e,500);
             }
         }
