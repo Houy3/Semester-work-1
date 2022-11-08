@@ -6,7 +6,7 @@ import jdbc.SQLAnnotations.*;
 import java.util.Date;
 import java.util.Objects;
 
-@Table(name = "tasks", isInsertIncludeUniqueField = true)
+@Table(name = "tasks")
 public class Task{
 
     @Unique
@@ -14,12 +14,16 @@ public class Task{
     private Long noteId;
 
     @NotNull
-    @Column(name = "notification_start_time")
-    private Date notificationStartTime;
+    @Column(name = "notification_start_date")
+    private Date notificationStartDate;
 
     @NotNull
     @Column(name = "deadline_time")
     private Date deadlineTime;
+
+    @NotNull
+    @Column(name = "is_done")
+    private Boolean isDone;
 
 
 
@@ -32,12 +36,12 @@ public class Task{
     }
 
 
-    public Date getNotificationStartTime() {
-        return notificationStartTime;
+    public Date getNotificationStartDate() {
+        return notificationStartDate;
     }
 
-    public void setNotificationStartTime(Date notificationStartTime) {
-        this.notificationStartTime = notificationStartTime;
+    public void setNotificationStartDate(Date notificationStartDate) {
+        this.notificationStartDate = notificationStartDate;
     }
 
 
@@ -49,7 +53,13 @@ public class Task{
         this.deadlineTime = deadlineTime;
     }
 
+    public Boolean getDone() {
+        return isDone;
+    }
 
+    public void setDone(Boolean done) {
+        isDone = done;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -65,7 +75,7 @@ public class Task{
     @Override
     public int hashCode() {
         int result = noteId != null ? noteId.hashCode() : 0;
-        result = 31 * result + (notificationStartTime != null ? notificationStartTime.hashCode() : 0);
+        result = 31 * result + (notificationStartDate != null ? notificationStartDate.hashCode() : 0);
         result = 31 * result + (deadlineTime != null ? deadlineTime.hashCode() : 0);
         return result;
     }
@@ -74,7 +84,7 @@ public class Task{
     public String toString() {
         return "Task{" +
                 "noteId=" + noteId +
-                ", notificationsStartTime=" + notificationStartTime +
+                ", notificationsStartTime=" + notificationStartDate +
                 ", deadlineTime=" + deadlineTime +
                 '}';
     }

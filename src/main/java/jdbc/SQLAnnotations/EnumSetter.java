@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnumSetter {
 
-    String field_name();
+    String fieldName();
 }

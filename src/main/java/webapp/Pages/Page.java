@@ -12,9 +12,6 @@ public abstract class Page extends HttpServlet {
 
     protected void saveOldValuesOrMakeNull(HttpServletRequest req, String[] attributes) {
         for (String i : attributes) {
-            if (i.equals("context")) {
-                req.setAttribute(i, getServletContext());
-            }
             req.setAttribute(i, req.getParameter(i));
         }
     }
@@ -39,7 +36,7 @@ public abstract class Page extends HttpServlet {
     }
 
 
-    protected void error(HttpServletResponse resp, Exception e, int errorCode) throws IOException {
+    protected static void error(HttpServletResponse resp, Exception e, int errorCode) throws IOException {
         System.out.println(e.getMessage());
         resp.sendError(errorCode);
     }

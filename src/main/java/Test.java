@@ -1,16 +1,18 @@
 import exceptions.*;
-import jdbc.SQLGenerator;
 import jdbc.SimpleDataSource;
 import models.*;
-import repositories.Repository;
-import repositories.RepositoryImpl;
-import services.Service;
-import services.ServiceImpl;
+import repositories.*;
+import repositories.Impl.*;
+import services.*;
+import services.Impl.*;
 
 import javax.sql.DataSource;
+import java.sql.Timestamp;
+import java.util.*;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Properties;
+import java.util.stream.Collectors;
+
+import static webapp.Constants.SPLIT_CHAR;
 
 public class Test {
     public static void main(String[] args) throws DBException, NotFoundException, NotUniqueException, NullException, ServiceException {
@@ -31,44 +33,63 @@ public class Test {
                 properties.getProperty("db.username"),
                 properties.getProperty("db.password")
         );
-        Repository repository = new RepositoryImpl(dataSource);
-        Service service = new ServiceImpl(repository);
-
-
-        String[] fieldsName = new String[]{"id", "noteId", "eventId", "userId"};
-        for (String fieldName : fieldsName) {
-            for (Class tClass : new Class[]{User.class, Timetable.class, Task.class, Note.class, Event.class, Period.class, User_Timetable.class}) {
-                try {
-                    System.out.println(SQLGenerator.insert(tClass, tClass.getDeclaredField(fieldName)));
-                    System.out.println(SQLGenerator.update(tClass, tClass.getDeclaredField(fieldName)));
-                    System.out.println(SQLGenerator.delete(tClass, tClass.getDeclaredField(fieldName)));
-                    System.out.println(SQLGenerator.selectByUniqueField(tClass, tClass.getDeclaredField(fieldName)));
-                    System.out.println(SQLGenerator.selectUniqueCheck(tClass));
-                    System.out.println();
-                } catch (SQLGeneratorException | NoSuchFieldException e) {
-                }
-            }
-        }
-        System.out.println((new StringBuilder("")));
-
+//        UsersRepository usersRepository = new UsersRepositoryImpl(dataSource);
+//        UsersService usersService = new UsersServiceImpl(usersRepository);
 //
-        User user = new User();
+        TimetablesRepository timetablesRepository = new TimetablesRepositoryImpl(dataSource);
+        TimetablesService timetablesService = new TimetablesServiceImpl(timetablesRepository);
+
+//        NotesRepository notesRepository = new NotesRepositoryImpl(dataSource);
+//        NotesService notesService = new NotesServiceImpl(notesRepository);
+//
+//        TasksRepository tasksRepository = new TasksRepositoryImpl(dataSource);
+//        TasksService tasksService = new TasksServiceImpl(tasksRepository);
+//
+//        PeriodsRepository periodsRepository = new PeriodsRepositoryImpl(dataSource);
+//        PeriodService periodService = new PeriodServiceImpl(periodsRepository);
+//
+//        EventsRepository eventsRepository = new EventsRepositoryImpl(dataSource);
+//        EventsService eventsService = new EventsServiceImpl(eventsRepository, periodService);
+
+
+//        String fieldName ="email";// new String[]{"id", "noteId", "eventId", "userId"};
+//       // for (String fieldName : fieldsName) {
+//            for (Class tClass : new Class[]{User.class, Timetable.class, Task.class, Note.class, Event.class, Period.class, User_Timetable.class}) {
+//                try {
+//                    System.out.println();
+//                    System.out.println(SQLGenerator.insert(tClass));
+//                    System.out.println(SQLGenerator.update(tClass, tClass.getDeclaredField(fieldName)));
+//                    System.out.println(SQLGenerator.delete(tClass, tClass.getDeclaredField(fieldName)));
+//                    System.out.println(SQLGenerator.selectByUniqueField(tClass, tClass.getDeclaredField(fieldName)));
+//                    System.out.println(SQLGenerator.selectUniqueCheck(tClass));
+//                } catch (SQLGeneratorException | NoSuchFieldException e) {
+//                    //System.out.println(e.getMessage());
+//                }
+//            }
+//        //}
+//        System.out.println((new StringBuilder("")));
+
+
+//        User user = new User();
 //        user.setEmail("ockap2003@mail.ru");
-//        user.setPasswordHash("12345678");
-//        user.setNickname("Houy3");
-//        user.setAccessRights(User.AccessRights.REGULAR);
-        user.setId(187L);
-        service.delete(user, "id");
+////        user.setPasswordHash("12345678");
+////        user.setNickname("Houy3");
+////        user.setAccessRights(User.AccessRights.REGULAR);
+////        user.setId(1L);
+//        service.getByUniqueField(user, "email");
+//        System.out.println(user);
 //
 //        Timetable timetable = new Timetable();
 //        timetable.setName("Учеба");
 //        service.add(timetable);
 //
-//        User_Timetable user_timetable = new User_Timetable();
-//        user_timetable.setUserId(user.getId());
-//        user_timetable.setTimetableId(timetable.getId());
-//        user_timetable.setAccessRights(Timetable.AccessRights.OWNER);
-//        service.add(user_timetable);
+//        UserTimetable user_timetable = new UserTimetable();
+//        user_timetable.setUserId(2L);
+//        user_timetable.setTimetableId(2L);
+//      //  user_timetable.setAccessRights(Timetable.AccessRights.OWNER);
+//        service.delete(user_timetable, "usfgerId");
+//        System.out.println(user_timetable);
+
 //
 //        Note note = new Note();
 //        note.setName("Пара по терверу");
@@ -95,9 +116,55 @@ public class Test {
 //        period.setGroupId(1L);
 //        service.add(period);
 
+//        Map<Timetable, Timetable.AccessRights> timetables = timetablesService.getTimetablesForUserId(2L);
+//
+//        for (Timetable timetable : timetables.keySet()) {
+//            System.out.println(timetable + " " + timetables.get(timetable));
+//        }
+//
+//        List<Note> notes = notesService.getNotesByTimetableId(1L);
+//        for (Note note : notes) {
+//            System.out.println(note);
+//        }
+
+//        Timestamp timestamp = new Timestamp((new Date()).getTime());
+//        System.out.println(new Date());
+
+//        List<Task> tasks = tasksService.getTasksByTimetableIdAndDate(1L, new Date());
+//        for (Task task : tasks) {
+//            System.out.println(task);
+//        }
+
+//        List<Event> events = eventsService.getEventsByTimetableIdAndDate(1L, new Date());
+//        for (Event event : events) {
+//            System.out.println(event);
+//            for (Period period : event.getPeriods()){
+//                System.out.println("\t" + period);
+//            }
+//        }
 
 
+//        Period period = new Period();
+//        period.setEventId(1L);
+//        period.setStartTime(Calendar.getInstance().getTime());
+//        Calendar calendar1 = Calendar.getInstance();
+//        calendar1.add(Calendar.HOUR,2);
+//        period.setEndTime(calendar1.getTime());
+//        period.setRepeatability(Period.Repeatability.DAY);
+//        Calendar calendar2 = Calendar.getInstance();
+//        calendar2.set(2022, 10, 8);
+//        period.setRepeatabilityEndTime(calendar2.getTime());
+//        periodService.add(period);
 
+
+        String v = "12";
+        String[] vv = v.split("\\.");
+        System.out.println(vv[0]);
+        Arrays.stream(v.split(SPLIT_CHAR)).map(Long::parseLong).toList();//.forEach(System.out::println);
+//        Map<Timetable, Timetable.AccessRights> tt = timetablesService.getTimetablesForUserId(2L);
+//
+//        for (Timetable timetable : tt.keySet()) {
+//            System.out.println(timetable + " " + tt.get(timetable));
+//        }
     }
-
 }

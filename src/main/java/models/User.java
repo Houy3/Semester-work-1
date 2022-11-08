@@ -7,7 +7,8 @@ import java.util.Objects;
 @Table(name = "users")
 public class User {
 
-    @Unique
+
+    @PK
     @Column(name = "id")
     private Long id;
 
@@ -91,7 +92,7 @@ public class User {
     }
 
 
-    @EnumSetter(field_name = "accessRights")
+    @EnumSetter(fieldName = "accessRights")
     public void setAccessRights(String accessRights) {
         this.accessRights = AccessRights.valueOf(accessRights);
     }

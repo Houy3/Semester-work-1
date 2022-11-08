@@ -6,7 +6,7 @@ import java.util.Objects;
 
 @Table(name = "notes")
 public class Note {
-    @Unique
+    @PK
     @Column(name = "id")
     private Long id;
 

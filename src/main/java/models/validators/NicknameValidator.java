@@ -3,17 +3,12 @@ package models.validators;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NicknameValidator implements Validator<String>{
+public record NicknameValidator(String regex) implements Validator<String> {
 
-    public final String regex;
-
-    public NicknameValidator(String regex) {
-        this.regex = regex;
-    }
     @Override
     public void check(String object) throws IllegalArgumentException {
         if (object == null || object.equals("")) {
-            throw new IllegalArgumentException("Ник не заполнен");
+            throw new IllegalArgumentException("Nickname is empty. ");
         }
 
         Pattern pattern2 = Pattern.compile(regex);
@@ -21,10 +16,11 @@ public class NicknameValidator implements Validator<String>{
         if (!matcher2.find()) {
             throw new IllegalArgumentException(
                     """
-                    Разрешённые символы для пароля:
-                    - Заглавные латинские буквы: от A до Z
-                    - Строчные латинские буквы: от a до z
-                    - Цифры от 0 до 9""");
+                            Allowed characters for the nickname:
+                                - Capital Latin letters: from A to Z
+                                - Lowercase Latin letters: from a to z
+                                - Numbers from 0 to 9
+                            """);
         }
     }
 }

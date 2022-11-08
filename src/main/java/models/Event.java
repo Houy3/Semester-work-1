@@ -2,9 +2,11 @@ package models;
 
 import jdbc.SQLAnnotations.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-@Table(name = "events", isInsertIncludeUniqueField = true)
+@Table(name = "events")
 public class Event {
 
     @Unique
@@ -16,6 +18,8 @@ public class Event {
 
     @Column(name = "link")
     private String link;
+
+    private List<Period> periods;
 
 
     public Long getNoteId() {
@@ -42,6 +46,28 @@ public class Event {
         this.link = link;
     }
 
+    public List<Period> getPeriods() {
+        return periods;
+    }
+
+    public void setPeriods(List<Period> periods) {
+        this.periods = periods;
+    }
+
+    public void addPeriod(Period period) {
+        if (periods == null) {
+            periods = new ArrayList<>();
+        }
+        periods.add(period);
+    }
+
+    public void deletePeriod(Period period) {
+        if (periods != null) {
+            periods.remove(period);
+        }
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -49,9 +75,7 @@ public class Event {
 
         Event event = (Event) o;
 
-        if (!Objects.equals(noteId, event.noteId)) return false;
-        if (!Objects.equals(place, event.place)) return false;
-        return Objects.equals(link, event.link);
+        return Objects.equals(noteId, event.noteId);
     }
 
     @Override
@@ -69,15 +93,6 @@ public class Event {
                 ", place='" + place + '\'' +
                 ", link='" + link + '\'' +
                 '}';
-    }
-
-    public enum Repeatability {
-        HOUR,
-        DAY,
-        WEEK,
-        MONTH,
-        QUARTER,
-        YEAR
     }
 
 

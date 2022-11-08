@@ -7,10 +7,10 @@ import models.validators.EmailValidator;
 import models.validators.NicknameValidator;
 import models.validators.PasswordValidator;
 import models.validators.Validator;
-import repositories.Repository;
-import repositories.RepositoryImpl;
-import services.Service;
-import services.ServiceImpl;
+import repositories.*;
+import repositories.Impl.*;
+import services.*;
+import services.Impl.*;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -19,16 +19,17 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Properties;
 
+import static webapp.Constants.*;
+
 @WebListener
 public class ServiceListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
-        //userService
         Properties properties = new Properties();
         try {
-            properties.load(this.getClass().getResourceAsStream("/app.properties"));
+            properties.load(ServiceListener.class.getResourceAsStream("/app.properties"));
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -37,10 +38,29 @@ public class ServiceListener implements ServletContextListener {
                 properties.getProperty("db.username"),
                 properties.getProperty("db.password")
         );
-        Repository repository = new RepositoryImpl(dataSource);
-        Service usersService = new ServiceImpl(repository);
+        UsersRepository usersRepository = new UsersRepositoryImpl(dataSource);
+        UsersService usersService = new UsersServiceImpl(usersRepository);
+        sce.getServletContext().setAttribute(USERS_SERVICE, usersService);
 
-        sce.getServletContext().setAttribute("service", usersService);
+        TimetablesRepository timetablesRepository = new TimetablesRepositoryImpl(dataSource);
+        TimetablesService timetablesService = new TimetablesServiceImpl(timetablesRepository);
+        sce.getServletContext().setAttribute(TIMETABLES_SERVICE, timetablesService);
+
+        NotesRepository notesRepository = new NotesRepositoryImpl(dataSource);
+        NotesService notesService = new NotesServiceImpl(notesRepository);
+        sce.getServletContext().setAttribute(NOTES_SERVICE, notesService);
+
+        TasksRepository tasksRepository = new TasksRepositoryImpl(dataSource);
+        TasksService tasksService = new TasksServiceImpl(tasksRepository);
+        sce.getServletContext().setAttribute(TASKS_SERVICE, tasksService);
+
+        PeriodsRepository periodsRepository = new PeriodsRepositoryImpl(dataSource);
+        PeriodService periodService = new PeriodServiceImpl(periodsRepository);
+        sce.getServletContext().setAttribute(PERIODS_SERVICE, periodService);
+
+        EventsRepository eventsRepository = new EventsRepositoryImpl(dataSource);
+        EventsService eventsService = new EventsServiceImpl(eventsRepository, periodService);
+        sce.getServletContext().setAttribute(EVENTS_SERVICE, eventsService);
 
 
         final Validator<String> emailValidator = new EmailValidator(properties.getProperty("email.regexp"));

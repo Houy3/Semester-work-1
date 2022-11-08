@@ -5,10 +5,9 @@ import jdbc.SQLAnnotations.*;
 import java.util.Date;
 import java.util.Objects;
 
-@Table(name="periods", isInsertIncludeUniqueField = true)
+@Table(name="periods")
 public class Period {
 
-    @Unique
     @NotNull
     @Column(name = "event_id")
     private Long eventId;
@@ -24,6 +23,9 @@ public class Period {
     @NotNull
     @Column(name = "group_id")
     private Long groupId;
+
+    private Repeatability repeatability;
+    private Date repeatabilityEndTime;
 
 
     public Long getEventId() {
@@ -52,6 +54,22 @@ public class Period {
     }
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
+    }
+
+    public Repeatability getRepeatability() {
+        return repeatability;
+    }
+
+    public void setRepeatability(Repeatability repeatability) {
+        this.repeatability = repeatability;
+    }
+
+    public Date getRepeatabilityEndTime() {
+        return repeatabilityEndTime;
+    }
+
+    public void setRepeatabilityEndTime(Date repeatabilityEndTime) {
+        this.repeatabilityEndTime = repeatabilityEndTime;
     }
 
     @Override
@@ -85,4 +103,13 @@ public class Period {
                 ", groupId=" + groupId +
                 '}';
     }
+
+
+    public enum Repeatability {
+        DAY,
+        WEEK,
+        MONTH,
+        YEAR
+    }
+
 }

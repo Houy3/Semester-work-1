@@ -10,6 +10,5 @@ import java.lang.annotation.Target;
 public @interface Table {
 
     String name();
-    boolean isInsertIncludeUniqueField() default false;
 
 }

@@ -2,23 +2,24 @@ package jdbc.queries;
 
 import java.util.List;
 import java.lang.reflect.Field;
+import java.util.Optional;
 
 public class InsertQuery extends Query {
 
     private List<Field> fields;
-    private List<Field> uniqueFields;
+    private Optional<Field> PKField;
 
     public List<Field> getFields() {
         return fields;
     }
 
-    public List<Field> getUniqueFields() {
-        return uniqueFields;
+    public Optional<Field> getPKField() {
+        return PKField;
     }
 
-    public InsertQuery(String query, List<Field> fields, List<Field> uniqueFields) {
+    public InsertQuery(String query, List<Field> fields, Optional<Field> PKField) {
         super(query);
         this.fields = fields;
-        this.uniqueFields = uniqueFields;
+        this.PKField = PKField;
     }
 }
