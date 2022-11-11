@@ -89,19 +89,22 @@
                     <input type="date"
                            name="DAY1"
                            class="form-control a"
-                           value="${DAY1}">
+                           value="${DAY1}"
+                        ${READ_ONLY}>
                 </label>
                 <label>Start time:
                     <input type="time"
                            name="START_TIME1"
                            class="form-control a"
-                           value="${START_TIME1}">
+                           value="${START_TIME1}"
+                        ${READ_ONLY}>
                 </label>
                 <label>End time:
                     <input type="time"
                            name="END_TIME1"
                            class="form-control a"
-                           value="${END_TIME1}">
+                           value="${END_TIME1}"
+                        ${READ_ONLY}>
                 </label>
             </div>
             <div id="2">
@@ -109,19 +112,22 @@
                     <input type="date"
                            name="DAY2"
                            class="form-control a"
-                           value="${DAY2}">
+                           value="${DAY2}"
+                        ${READ_ONLY}>
                 </label>
                 <label>
                     <input type="time"
                            name="START_TIME2"
                            class="form-control a"
-                           value="${START_TIME2}">
+                           value="${START_TIME2}"
+                        ${READ_ONLY}>
                 </label>
                 <label>
                     <input type="time"
                            name="END_TIME2"
                            class="form-control a"
-                           value="${END_TIME2}">
+                           value="${END_TIME2}"
+                        ${READ_ONLY}>
                 </label>
             </div>
             <div id="3">
@@ -129,19 +135,22 @@
                     <input type="date"
                            name="DAY3"
                            class="form-control a"
-                           value="${DAY3}">
+                           value="${DAY3}"
+                        ${READ_ONLY}>
                 </label>
                 <label>
                     <input type="time"
                            name="START_TIME3"
                            class="form-control a"
-                           value="${START_TIME3}">
+                           value="${START_TIME3}"
+                        ${READ_ONLY}>
                 </label>
                 <label>
                     <input type="time"
                            name="END_TIME3"
                            class="form-control a"
-                           value="${END_TIME3}">
+                           value="${END_TIME3}"
+                        ${READ_ONLY}>
                 </label>
             </div>
             <div id="4">
@@ -149,19 +158,22 @@
                     <input type="date"
                            name="DAY4"
                            class="form-control a"
-                           value="${DAY4}">
+                           value="${DAY4}"
+                        ${READ_ONLY}>
                 </label>
                 <label>
                     <input type="time"
                            name="START_TIME4"
                            class="form-control a"
-                           value="${START_TIME4}">
+                           value="${START_TIME4}"
+                        ${READ_ONLY}>
                 </label>
                 <label>
                     <input type="time"
                            name="END_TIME4"
                            class="form-control a"
-                           value="${END_TIME4}">
+                           value="${END_TIME4}"
+                        ${READ_ONLY}>
                 </label>
             </div>
 

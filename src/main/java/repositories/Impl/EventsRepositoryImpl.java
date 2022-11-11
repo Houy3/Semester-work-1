@@ -38,6 +38,7 @@ public class EventsRepositoryImpl extends RepositoryImpl implements EventsReposi
                , periods p
             where e.note_id = n.id
               and n.timetable_id = ?
+              and e.note_id = p.event_id
               and p.start_time < (date_trunc('day', ?::timestamp) + interval '1 day')
               and (date_trunc('day', ?::timestamp) <= p.end_time)
             order by p.start_time
