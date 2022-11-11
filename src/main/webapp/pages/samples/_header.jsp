@@ -38,7 +38,7 @@
                 </a>
             </c:if>
             <c:if test="${not empty SESSION_USER}">
-                <a href="${pageContext.request.contextPath}<%out.print(SIGN_OUT);%>" type="button" class="btn btn-primary">
+                <a onclick="handle2()" href="${pageContext.request.contextPath}<%out.print(SIGN_OUT);%>" type="button" class="btn btn-primary">
                     Sign out
                 </a>
             </c:if>

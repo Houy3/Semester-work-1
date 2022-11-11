@@ -1,5 +1,5 @@
 function handle(event) {
-    let inputs = document.querySelector('form').get(0).querySelectorAll('input')
+    let inputs = document.getElementById("selectTimetables").querySelectorAll('input')
     let A = 'A'
     let selected = ''
     for (let i = 0; i < inputs.length; i++) {
@@ -7,6 +7,7 @@ function handle(event) {
             selected = selected + inputs[i].name + A;
         }
     }
+    console.log(selected);
 
     let xhr = new XMLHttpRequest();
     let body = 'selected=' + encodeURIComponent(selected) +
@@ -18,5 +19,5 @@ function handle(event) {
 
     location.reload();
 }
-
+document.getElementById("selectTimetables").addEventListener('change', handle);
 document.querySelector('form').addEventListener('change', handle);

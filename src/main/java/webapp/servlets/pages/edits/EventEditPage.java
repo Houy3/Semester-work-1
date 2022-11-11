@@ -120,7 +120,8 @@ public class EventEditPage extends Page {
         DateFormat htmlTimeFormat = new SimpleDateFormat((String) getServletContext().getAttribute(HTML_TIME_FORMAT.name()));
         for (int i = 1; i <= countOfPeriods; i++) {
             try {
-                Period period = event.getPeriods().get(i);
+                Period period = event.getPeriods().get(i-1);
+                System.out.println(period);
                 req.setAttribute(DAY.name()+i, htmlDateFormat.format(period.getStartTime()));
                 req.setAttribute(START_TIME.name()+i, htmlTimeFormat.format(period.getStartTime()));
                 req.setAttribute(END_TIME.name()+i, htmlTimeFormat.format(period.getEndTime()));

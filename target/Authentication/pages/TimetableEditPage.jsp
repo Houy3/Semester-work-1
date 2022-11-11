@@ -67,7 +67,7 @@
                 out.print(Options.getAllTimetablesOfWhichSessionUserIsOwner(request, request.getParameter(TimetableEditPage.Parameters.ID.name())));%>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary">Delete</button>
+          <button type="submit" class="btn btn-danger">Delete</button>
         </form>
       </div>
     </div>

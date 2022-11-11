@@ -35,7 +35,7 @@ public class Forms {
         }
 
         StringBuilder out = new StringBuilder();
-        out.append("<form name=\"setTimetables\" method=\"post\" action=\"").append(request.getContextPath()).append(CHOOSE_TIMETABLES).append("?back=").append(back).append("\">");
+        out.append("<form id=\"selectTimetables\" name=\"setTimetables\" method=\"post\" action=\"").append(request.getContextPath()).append(CHOOSE_TIMETABLES).append("?back=").append(back).append("\">");
         out.append("<p class=\"font-weight-bold text-center\">Choose timetables</p>");
         if (timetables.isEmpty()) {
             out.append("<p class=\" my-3 text-center font-weight-bold\">You don't have timetables</p>" +
@@ -148,7 +148,8 @@ public class Forms {
                 .append("<form><label>").append("<input type=\"date\" name=\"DAY\" class=\"form-control\" value=\"")
                 .append(htmlDateFormat.format(day))
                 .append("\">")
-                .append("</label></form></div>");
+                .append("</label>").append("<button type=\"submit\" class=\"btn btn-primary\">Reset</button>")
+                .append("</form></div>");
 
         List<Long> timetablesId = getSelectedTimetablesId(user.getSelectedTimetables());
 
@@ -174,10 +175,12 @@ public class Forms {
             }
             Container container = new Container(note.getId(),
                     note.getName(), note.getBody(), null,
-                    task.getDeadlineTime(), true, Container.Type.TASK);
+                    task.getDeadlineTime(), task.getDone(), Container.Type.TASK);
             Date nextDay = new Date(day.getTime() + 1000*60*60*24);
             if (task.getDeadlineTime().compareTo(now) <= 0) {
                 deadlineOut.add(container);
+            } else if (task.getDeadlineTime().compareTo(day) <= 0) {
+
             } else if (task.getDeadlineTime().compareTo(nextDay) > 0) {
                 deadlineFar.add(container);
             } else {
@@ -217,7 +220,7 @@ public class Forms {
                 out.append("<a").append(urlTo(request, container.id, Container.Type.TASK));
                 boolean flag = i == deadlineFar.size() - 1;
                 boolean flag2 = container.body != null && !container.body.trim().equals("");
-                out.append("<p class=\" ").append(flag ? "border-bottom" : "").append(" text-truncate\"> ").append(container.name).append(flag2 ? " (" + container.body + ")" : "").append("</p></a>");
+                out.append("<p class=\" ").append(container.isDone ? "text-success " : "").append(flag ? " border-bottom " : "").append(" text-truncate\"> ").append(container.name).append(flag2 ? " (" + container.body + ")" : "").append("</p></a>");
             }
         }
 

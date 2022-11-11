@@ -104,6 +104,67 @@
                            value="${END_TIME1}">
                 </label>
             </div>
+            <div id="2">
+                <label>
+                    <input type="date"
+                           name="DAY2"
+                           class="form-control a"
+                           value="${DAY2}">
+                </label>
+                <label>
+                    <input type="time"
+                           name="START_TIME2"
+                           class="form-control a"
+                           value="${START_TIME2}">
+                </label>
+                <label>
+                    <input type="time"
+                           name="END_TIME2"
+                           class="form-control a"
+                           value="${END_TIME2}">
+                </label>
+            </div>
+            <div id="3">
+                <label>
+                    <input type="date"
+                           name="DAY3"
+                           class="form-control a"
+                           value="${DAY3}">
+                </label>
+                <label>
+                    <input type="time"
+                           name="START_TIME3"
+                           class="form-control a"
+                           value="${START_TIME3}">
+                </label>
+                <label>
+                    <input type="time"
+                           name="END_TIME3"
+                           class="form-control a"
+                           value="${END_TIME3}">
+                </label>
+            </div>
+            <div id="4">
+                <label>
+                    <input type="date"
+                           name="DAY4"
+                           class="form-control a"
+                           value="${DAY4}">
+                </label>
+                <label>
+                    <input type="time"
+                           name="START_TIME4"
+                           class="form-control a"
+                           value="${START_TIME4}">
+                </label>
+                <label>
+                    <input type="time"
+                           name="END_TIME4"
+                           class="form-control a"
+                           value="${END_TIME4}">
+                </label>
+            </div>
+
 
         </form>
     </div>
