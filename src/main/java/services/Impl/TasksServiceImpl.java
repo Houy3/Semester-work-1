@@ -5,8 +5,9 @@ import exceptions.NotUniqueException;
 import exceptions.NullException;
 import exceptions.ServiceException;
 import models.Task;
-import repositories.TasksRepository;
-import services.TasksService;
+import repositories.Inter.TasksRepository;
+import services.Inter.TasksService;
+import services.ServiceImpl;
 
 import java.util.*;
 
@@ -33,7 +34,7 @@ public class TasksServiceImpl extends ServiceImpl implements TasksService {
         //обрезаю часы, минуты и тп, так как нужен только день
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(task.getNotificationStartDate());
-        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
         task.setNotificationStartDate(calendar.getTime());
 
         super.add(task);
@@ -53,7 +54,7 @@ public class TasksServiceImpl extends ServiceImpl implements TasksService {
     public List<Task> getTasksByTimetableIdAndDate(Long timetableId, Date day) throws DBException, ServiceException, NullException {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(day);
-        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0,0,0);
 
         return tasksRepository.selectTasksByTimetableIdAndDate(timetableId, calendar.getTime());
     }

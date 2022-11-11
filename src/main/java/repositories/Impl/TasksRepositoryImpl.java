@@ -4,8 +4,8 @@ import exceptions.DBException;
 import exceptions.NullException;
 import exceptions.ServiceException;
 import models.Task;
-import models.Timetable;
-import repositories.TasksRepository;
+import repositories.Inter.TasksRepository;
+import repositories.RepositoryImpl;
 
 import javax.sql.DataSource;
 import java.sql.*;

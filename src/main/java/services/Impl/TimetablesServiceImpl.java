@@ -4,9 +4,9 @@ import exceptions.DBException;
 import exceptions.NullException;
 import exceptions.ServiceException;
 import models.Timetable;
-import repositories.Repository;
-import repositories.TimetablesRepository;
-import services.TimetablesService;
+import repositories.Inter.TimetablesRepository;
+import services.Inter.TimetablesService;
+import services.ServiceImpl;
 
 import java.util.Map;
 

@@ -1,3 +1,4 @@
+<%@ page import="webapp.Utils.Tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="/pages/samples/_header.jsp" %>
 
@@ -6,35 +7,37 @@
 <head>
     <title>Memorandum</title>
     <meta charset='UTF-8'>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bootstrap.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 
 
 
 <body>
 
-<div class="mx-5 my-1">
-    <form name="login" method="post">
-        <div class="form-group my-3">
-            <input name="email"
-                   type="email"
-                   class="form-control"
-                   aria-describedby="emailHelp"
-                   placeholder="Email"
-                   value="${email}">
+<div class="my-3">
+    <div class="container">
+        <div class="row">
+            <form name="login" method="post">
+                <div class="my-3">
+                    <input name="EMAIL"
+                           type="email"
+                           class="form-control"
+                           aria-describedby="emailHelp"
+                           placeholder="Email"
+                           value="${EMAIL}">
+                </div>
+                <div class="my-3">
+                    <input name="PASSWORD"
+                           type="password"
+                           class="form-control"
+                           placeholder="Password"
+                           value="${PASSWORD}">
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <%out.print(Tags.errorMessage(request));%>
+            </form>
         </div>
-        <div class="form-group my-3">
-            <input name="password"
-                   type="password"
-                   class="form-control"
-                   placeholder="Password"
-                   value="${password}">
-        </div>
-
-        <button type="submit" class="btn btn-primary">Login</button>
-        <p class="text-danger">${error}</p>
-    </form>
-
+    </div>
 </div>
 
 </body>

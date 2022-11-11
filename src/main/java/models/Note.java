@@ -1,7 +1,8 @@
 package models;
 
-import jdbc.SQLAnnotations.*;
+import SQL.SQLAnnotations.*;
 
+import java.util.Date;
 import java.util.Objects;
 
 @Table(name = "notes")
@@ -22,10 +23,10 @@ public class Note {
     @Column(name = "body")
     private String body;
 
-    @NotNull
-    @Column(name = "is_in_archive")
-    private Boolean isInArchive;
 
+    @NotNull
+    @Column(name = "last_change_time")
+    private Date lastChangeTime;
 
 
 
@@ -64,15 +65,13 @@ public class Note {
         this.body = body;
     }
 
-    public Boolean getInArchive() {
-        return isInArchive;
+    public Date getLastChangeTime() {
+        return lastChangeTime;
     }
 
-    public void setInArchive(Boolean inArchive) {
-        isInArchive = inArchive;
+    public void setLastChangeTime(Date lastChangeTime) {
+        this.lastChangeTime = lastChangeTime;
     }
-
-
 
     @Override
     public boolean equals(Object o) {
@@ -96,7 +95,7 @@ public class Note {
                 ", timetableId=" + timetableId +
                 ", name='" + name + '\'' +
                 ", body='" + body + '\'' +
-                ", isInArchive=" + isInArchive +
+                ", lastChangeTime=" + lastChangeTime +
                 '}';
     }
 }

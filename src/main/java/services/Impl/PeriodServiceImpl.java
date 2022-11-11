@@ -2,11 +2,12 @@ package services.Impl;
 
 import exceptions.*;
 import models.Period;
-import repositories.PeriodsRepository;
-import repositories.Repository;
-import services.PeriodService;
+import repositories.Inter.PeriodsRepository;
+import services.Inter.PeriodService;
+import services.ServiceImpl;
 
 import java.util.Calendar;
+import java.util.List;
 
 public class PeriodServiceImpl extends ServiceImpl implements PeriodService {
 
@@ -27,17 +28,17 @@ public class PeriodServiceImpl extends ServiceImpl implements PeriodService {
         }
 
         if (period.getStartTime().compareTo(period.getEndTime()) > 0) {
-            throw new ServiceException("Дата окончания меньше даты начала. ");
+            throw new IllegalArgumentException("End date cannot be less than start date. ");
         }
 
         Calendar calendar1 = Calendar.getInstance();
         calendar1.setTime(period.getStartTime());
-        calendar1.set(calendar1.get(Calendar.YEAR), calendar1.get(Calendar.MONTH), calendar1.get(Calendar.DAY_OF_MONTH));
+        calendar1.set(calendar1.get(Calendar.YEAR), calendar1.get(Calendar.MONTH), calendar1.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
         calendar1.add(Calendar.DAY_OF_MONTH, 1);
         Calendar calendar2 = Calendar.getInstance();
         calendar2.setTime(period.getEndTime());
-        if (calendar1.compareTo(calendar2) >= 0) {
-            throw new ServiceException("Даты начала и окончания события должны быть в одном дне.");
+        if (calendar1.compareTo(calendar2) < 0) {
+            throw new IllegalArgumentException("The event start and end dates must be on the same day.");
         }
 
         period.setGroupId(periodsRepository.getNewGroupId());
@@ -46,8 +47,15 @@ public class PeriodServiceImpl extends ServiceImpl implements PeriodService {
 
         } else {
             if (period.getRepeatabilityEndTime() == null) {
-                throw new ServiceException("У объекта " + Period.class.getName() + " не задано ограничение на повтор. ");
+                throw new NullException("repeatabilityEndTime");
             }
+            //обрезаю часы, минуты и тп, так как нужен только день
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(period.getRepeatabilityEndTime());
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+            period.setRepeatabilityEndTime(calendar.getTime());
+
+
             Calendar calendarStart = Calendar.getInstance();
             calendarStart.setTime(period.getStartTime());
             Calendar calendarEnd = Calendar.getInstance();
@@ -76,5 +84,10 @@ public class PeriodServiceImpl extends ServiceImpl implements PeriodService {
     @Override
     public void deleteGroup(Long groupId) throws NotFoundException, DBException {
         periodsRepository.deleteGroup(groupId);
+    }
+
+    @Override
+    public List<Period> getByEventId(Long eventId) throws DBException, ServiceException, NullException {
+        return periodsRepository.selectByEventId(eventId);
     }
 }

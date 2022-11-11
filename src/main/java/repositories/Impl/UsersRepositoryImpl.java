@@ -6,7 +6,8 @@ import exceptions.NullException;
 import exceptions.ServiceException;
 import models.User;
 import models.forms.UserSignUpForm;
-import repositories.UsersRepository;
+import repositories.Inter.UsersRepository;
+import repositories.RepositoryImpl;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

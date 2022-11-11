@@ -1,0 +1,32 @@
+.note {
+    width: 200px;
+    height: 150px;
+}
+.note-head {
+    width: 200px;
+    height: 30px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.note-body {
+    width: 200px;
+    height: 120px;
+    overflow: hidden;
+}
+
+.tasks {
+    width: 400px;
+}
+
+.tasks-head {
+    height: 40px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+
+
+li {
+    list-style-type: none; /* Убираем маркеры */
+}

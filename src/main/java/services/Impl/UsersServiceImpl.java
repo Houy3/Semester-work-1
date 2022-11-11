@@ -6,11 +6,10 @@ import exceptions.NullException;
 import exceptions.ServiceException;
 import models.User;
 import models.forms.UserSignUpForm;
-import repositories.Repository;
-import repositories.UsersRepository;
-import services.UsersService;
+import repositories.Inter.UsersRepository;
+import services.Inter.UsersService;
+import services.ServiceImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UsersServiceImpl extends ServiceImpl implements UsersService {

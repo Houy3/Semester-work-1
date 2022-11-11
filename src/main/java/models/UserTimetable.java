@@ -1,6 +1,6 @@
 package models;
 
-import jdbc.SQLAnnotations.*;
+import SQL.SQLAnnotations.*;
 
 import java.util.Objects;
 
@@ -15,6 +15,7 @@ public class UserTimetable {
     @Column(name = "timetable_id")
     private Long timetableId;
 
+    @NotNull
     @Column(name = "access_rights")
     private Timetable.AccessRights accessRights;
 

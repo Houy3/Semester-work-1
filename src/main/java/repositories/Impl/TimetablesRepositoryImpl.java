@@ -3,21 +3,17 @@ package repositories.Impl;
 import exceptions.DBException;
 import exceptions.NullException;
 import exceptions.ServiceException;
-import jdbc.SQLAnnotations.Column;
 import models.Timetable;
-import repositories.TimetablesRepository;
+import repositories.Inter.TimetablesRepository;
+import repositories.RepositoryImpl;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TimetablesRepositoryImpl extends RepositoryImpl implements TimetablesRepository {
 

@@ -1,6 +1,6 @@
 package models;
 
-import jdbc.SQLAnnotations.*;
+import SQL.SQLAnnotations.*;
 
 import java.util.Date;
 import java.util.Objects;
@@ -8,15 +8,19 @@ import java.util.Objects;
 @Table(name="periods")
 public class Period {
 
-    @NotNull
+    @PK
+    @Column(name = "id")
+    private Long id;
+
+    @Unique(group = 1)
     @Column(name = "event_id")
     private Long eventId;
 
-    @NotNull
+    @Unique(group = 1)
     @Column(name = "start_time")
     private Date startTime;
 
-    @NotNull
+    @Unique(group = 1)
     @Column(name = "end_time")
     private Date endTime;
 
@@ -27,6 +31,14 @@ public class Period {
     private Repeatability repeatability;
     private Date repeatabilityEndTime;
 
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getEventId() {
         return eventId;
@@ -79,31 +91,39 @@ public class Period {
 
         Period period = (Period) o;
 
+        if (!Objects.equals(id, period.id)) return false;
         if (!Objects.equals(eventId, period.eventId)) return false;
         if (!Objects.equals(startTime, period.startTime)) return false;
         if (!Objects.equals(endTime, period.endTime)) return false;
-        return Objects.equals(groupId, period.groupId);
+        if (!Objects.equals(groupId, period.groupId)) return false;
+        if (repeatability != period.repeatability) return false;
+        return Objects.equals(repeatabilityEndTime, period.repeatabilityEndTime);
     }
 
     @Override
     public int hashCode() {
-        int result = eventId != null ? eventId.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (eventId != null ? eventId.hashCode() : 0);
         result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
         result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
         result = 31 * result + (groupId != null ? groupId.hashCode() : 0);
+        result = 31 * result + (repeatability != null ? repeatability.hashCode() : 0);
+        result = 31 * result + (repeatabilityEndTime != null ? repeatabilityEndTime.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "Period{" +
-                "eventId=" + eventId +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
+                "id=" + id +
+                ", eventId=" + eventId +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
                 ", groupId=" + groupId +
+                ", repeatability=" + repeatability +
+                ", repeatabilityEndTime=" + repeatabilityEndTime +
                 '}';
     }
-
 
     public enum Repeatability {
         DAY,

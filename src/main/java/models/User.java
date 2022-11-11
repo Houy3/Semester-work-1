@@ -1,6 +1,6 @@
 package models;
 
-import jdbc.SQLAnnotations.*;
+import SQL.SQLAnnotations.*;
 
 import java.util.Objects;
 
@@ -33,6 +33,9 @@ public class User {
     @NotNull
     @Column(name = "access_rights")
     private AccessRights accessRights;
+
+    @Column(name = "selected_timetables")
+    private String selectedTimetables;
 
 
 
@@ -97,14 +100,20 @@ public class User {
         this.accessRights = AccessRights.valueOf(accessRights);
     }
 
+    public String getSelectedTimetables() {
+        return selectedTimetables;
+    }
 
+    public void setSelectedTimetables(String selectedTimetables) {
+        this.selectedTimetables = selectedTimetables;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return email.equals(user.email);
+        return id.equals(user.id);
     }
 
     @Override

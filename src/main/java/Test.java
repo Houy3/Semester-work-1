@@ -1,26 +1,26 @@
 import exceptions.*;
-import jdbc.SimpleDataSource;
-import models.*;
-import repositories.*;
+import models.encryptors.PasswordEncryptor;
+import repositories.Inter.*;
 import repositories.Impl.*;
-import services.*;
+import repositories.SimpleDataSource;
 import services.Impl.*;
+import services.Inter.*;
 
 import javax.sql.DataSource;
-import java.sql.Timestamp;
-import java.util.*;
 import java.io.IOException;
-import java.util.stream.Collectors;
-
-import static webapp.Constants.SPLIT_CHAR;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Test {
-    public static void main(String[] args) throws DBException, NotFoundException, NotUniqueException, NullException, ServiceException {
+    public static void main(String[] args) throws DBException, NotFoundException, NotUniqueException, NullException, ServiceException, ParseException {
 
-//        PasswordEncryptor passwordEncryptor = new PasswordEncryptor();
+        PasswordEncryptor passwordEncryptor = new PasswordEncryptor();
 //        System.out.println("21232F297A57A5A743894A0E4A801FC3");
-//        System.out.println(passwordEncryptor.encrypt("admin"));
+        System.out.println(passwordEncryptor.encrypt("admin"));
 
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
         Properties properties = new Properties();
         try {
@@ -33,88 +33,104 @@ public class Test {
                 properties.getProperty("db.username"),
                 properties.getProperty("db.password")
         );
-//        UsersRepository usersRepository = new UsersRepositoryImpl(dataSource);
-//        UsersService usersService = new UsersServiceImpl(usersRepository);
-//
+        UsersRepository usersRepository = new UsersRepositoryImpl(dataSource);
+        UsersService usersService = new UsersServiceImpl(usersRepository);
+
         TimetablesRepository timetablesRepository = new TimetablesRepositoryImpl(dataSource);
         TimetablesService timetablesService = new TimetablesServiceImpl(timetablesRepository);
 
-//        NotesRepository notesRepository = new NotesRepositoryImpl(dataSource);
-//        NotesService notesService = new NotesServiceImpl(notesRepository);
-//
-//        TasksRepository tasksRepository = new TasksRepositoryImpl(dataSource);
-//        TasksService tasksService = new TasksServiceImpl(tasksRepository);
-//
-//        PeriodsRepository periodsRepository = new PeriodsRepositoryImpl(dataSource);
-//        PeriodService periodService = new PeriodServiceImpl(periodsRepository);
-//
-//        EventsRepository eventsRepository = new EventsRepositoryImpl(dataSource);
-//        EventsService eventsService = new EventsServiceImpl(eventsRepository, periodService);
+        NotesRepository notesRepository = new NotesRepositoryImpl(dataSource);
+        NotesService notesService = new NotesServiceImpl(notesRepository);
+
+        TasksRepository tasksRepository = new TasksRepositoryImpl(dataSource);
+        TasksService tasksService = new TasksServiceImpl(tasksRepository);
+
+        PeriodsRepository periodsRepository = new PeriodsRepositoryImpl(dataSource);
+        PeriodService periodService = new PeriodServiceImpl(periodsRepository);
+
+        EventsRepository eventsRepository = new EventsRepositoryImpl(dataSource);
+        EventsService eventsService = new EventsServiceImpl(eventsRepository, periodService);
 
 
-//        String fieldName ="email";// new String[]{"id", "noteId", "eventId", "userId"};
+//        String fieldName ="id";// new String[]{"id", "noteId", "eventId", "userId"};
 //       // for (String fieldName : fieldsName) {
-//            for (Class tClass : new Class[]{User.class, Timetable.class, Task.class, Note.class, Event.class, Period.class, User_Timetable.class}) {
+//            for (Class tClass : new Class[]{User.class, Timetable.class, Task.class, Note.class, Event.class, Period.class, UserTimetable.class}) {
 //                try {
 //                    System.out.println();
 //                    System.out.println(SQLGenerator.insert(tClass));
 //                    System.out.println(SQLGenerator.update(tClass, tClass.getDeclaredField(fieldName)));
+////                    //SQLGenerator.update(tClass, tClass.getDeclaredField(fieldName)).getUniqueFields().forEach(System.out::println);
 //                    System.out.println(SQLGenerator.delete(tClass, tClass.getDeclaredField(fieldName)));
 //                    System.out.println(SQLGenerator.selectByUniqueField(tClass, tClass.getDeclaredField(fieldName)));
-//                    System.out.println(SQLGenerator.selectUniqueCheck(tClass));
-//                } catch (SQLGeneratorException | NoSuchFieldException e) {
-//                    //System.out.println(e.getMessage());
+//                    System.out.println(SQLGenerator.selectUniqueCheck(tClass, Optional.empty()));
+//                    System.out.println(SQLGenerator.selectUniqueCheck(tClass, Optional.of(tClass.getDeclaredField(fieldName))));
+//                } catch (SQLGeneratorException e) {
+//                    System.out.println(e.getMessage());
+//                } catch (NoSuchFieldException e) {
+//                    System.out.println("--------");
 //                }
 //            }
-//        //}
+        //}
 //        System.out.println((new StringBuilder("")));
 
 
 //        User user = new User();
-//        user.setEmail("ockap2003@mail.ru");
-////        user.setPasswordHash("12345678");
-////        user.setNickname("Houy3");
-////        user.setAccessRights(User.AccessRights.REGULAR);
-////        user.setId(1L);
-//        service.getByUniqueField(user, "email");
+//        user.setEmail("ockap20030408@gmail.ru");
+//        user.setPasswordHash("12345");
+//        user.setNickname("Houy3");
+//        user.setAccessRights(User.AccessRights.REGULAR);
+//        usersService.add(user);
 //        System.out.println(user);
 //
 //        Timetable timetable = new Timetable();
-//        timetable.setName("Учеба");
-//        service.add(timetable);
+//        timetable.setName("НЕ учеба");
+//        timetablesService.add(timetable);
+//        System.out.println(timetable);
 //
 //        UserTimetable user_timetable = new UserTimetable();
-//        user_timetable.setUserId(2L);
-//        user_timetable.setTimetableId(2L);
-//      //  user_timetable.setAccessRights(Timetable.AccessRights.OWNER);
-//        service.delete(user_timetable, "usfgerId");
+//        user_timetable.setUserId(user.getId());
+//        user_timetable.setTimetableId(timetable.getId());
+//        user_timetable.setAccessRights(Timetable.AccessRights.OWNER);
+//        timetablesService.add(user_timetable);
 //        System.out.println(user_timetable);
-
+//
 //
 //        Note note = new Note();
 //        note.setName("Пара по терверу");
 //        note.setBody("а что тут придумать");
 //        note.setTimetableId(timetable.getId());
 //        note.setInArchive(false);
-//        service.add(note);
+//        notesService.add(note);
+//        System.out.println(note);
 //
 //        Task task = new Task();
 //        task.setNoteId(note.getId());
-//        task.setNotificationStartTime(new Date(System.currentTimeMillis()));
-//        task.setDeadlineTime(new Date(System.currentTimeMillis() + 1000*60*30));
-//        service.add(task);
+//        task.setNotificationStartDate(dateFormat.parse("08.11.2022 00:00:00"));
+//        task.setDeadlineTime(dateFormat.parse("12.11.2022 00:00:00"));
+//        task.setDone(false);
+//        tasksService.add(task);
+//        System.out.println(task);
 //
 //        Event event = new Event();
 //        event.setNoteId(note.getId());
 //        event.setPlace("1409 кабинет");
-//        service.add(event);
 //
 //        Period period = new Period();
 //        period.setEventId(1L);
-//        period.setStartTime(new Date(System.currentTimeMillis()));
-//        period.setEndTime(new Date(System.currentTimeMillis() + 1000*60*30));
-//        period.setGroupId(1L);
-//        service.add(period);
+//        period.setStartTime(dateFormat.parse("08.11.2022 18:00:00"));
+//        period.setEndTime(dateFormat.parse("09.11.2022 00:00:00"));
+//        period.setRepeatability(Period.Repeatability.DAY);
+//        period.setRepeatabilityEndTime(dateFormat.parse("12.11.2022 19:00:00"));
+////        periodService.add(period);
+//        event.addPeriod(period);
+////
+//        eventsService.add(event);
+//        System.out.println(event);
+//        System.out.println(period);
+
+
+
+
 
 //        Map<Timetable, Timetable.AccessRights> timetables = timetablesService.getTimetablesForUserId(2L);
 //
@@ -156,15 +172,29 @@ public class Test {
 //        period.setRepeatabilityEndTime(calendar2.getTime());
 //        periodService.add(period);
 
-
-        String v = "12";
-        String[] vv = v.split("\\.");
-        System.out.println(vv[0]);
-        Arrays.stream(v.split(SPLIT_CHAR)).map(Long::parseLong).toList();//.forEach(System.out::println);
-//        Map<Timetable, Timetable.AccessRights> tt = timetablesService.getTimetablesForUserId(2L);
+//        Map<Timetable, Timetable.AccessRights> timetables = timetablesService.getTimetablesForUserId(10L);
+//        timetables.keySet().stream()
+//                .filter(t -> timetables.get(t).equals(Timetable.AccessRights.OWNER))
+//                .toList();
+//
+//        String v = "12";
+//        String[] vv = v.split("\\.");
+//        System.out.println(vv[0]);
+//        Arrays.stream(v.split(SPLIT_CHAR)).map(Long::parseLong).toList();//.forEach(System.out::println);
+////        Map<Timetable, Timetable.AccessRights> tt = timetablesService.getTimetablesForUserId(2L);
 //
 //        for (Timetable timetable : tt.keySet()) {
 //            System.out.println(timetable + " " + tt.get(timetable));
+////        }
+//
+//        try {
+//            System.out.println(UserTimetable.class.getDeclaredField("userId").equals(UserTimetable.class.getDeclaredField("userId")));
+//        } catch (NoSuchFieldException e) {
+//            throw new RuntimeException(e);
 //        }
+
+//        List<String> attributes = Arrays.stream(SignInPage.Parameters.values()).map(Enum::name).toList();
+//        attributes.add(ERROR_MESSAGE_NAME.name());
+//        attributes.forEach(System.out::println);
     }
 }

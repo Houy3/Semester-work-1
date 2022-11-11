@@ -7,14 +7,12 @@ import exceptions.ServiceException;
 import models.Note;
 import models.Timetable;
 import models.User;
-import models.forms.UserSignUpForm;
-import repositories.NotesRepository;
+import repositories.Inter.NotesRepository;
+import repositories.RepositoryImpl;
+import services.Inter.TimetablesService;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +28,10 @@ public class NotesRepositoryImpl extends RepositoryImpl implements NotesReposito
             select * 
             from notes 
             where timetable_id = ?
+            order by last_change_time desc
             """;
     @Override
-    public List<Note> selectNotesByTimetableId(Long timetableId) throws NullException, ServiceException, NotFoundException, DBException {
+    public List<Note> selectNotesByTimetableId(Long timetableId) throws NullException, ServiceException, DBException {
         if (timetableId == null) {
             throw new NullException("timetableId");
         }
@@ -55,5 +54,56 @@ public class NotesRepositoryImpl extends RepositoryImpl implements NotesReposito
             throw new DBException(e);
         }
         return notes;
+    }
+
+    @Override
+    public List<Note> selectNotesByTimetablesId(List<Long> timetablesId) throws NullException, ServiceException, DBException {
+        List<Note> notes = new ArrayList<>();
+        for (Long timetableId : timetablesId) {
+            notes.addAll(selectNotesByTimetableId(timetableId));
+        }
+        return notes;
+    }
+
+    private static final String SELECT_ACCESS_RIGHTS_FROM_NOTES_BY_USER_ID =
+            """
+            select ut.access_rights
+            from notes n
+                ,users_timetables ut
+            where n.id = ?
+              and n.timetable_id = ut.timetable_id
+              and ut.user_id = ?
+            """;
+    @Override
+    public Timetable.AccessRights selectAccessRightsOnNoteByNoteIdAndUserId(Long noteId, Long userId) throws NullException, ServiceException, DBException, NotFoundException {
+        if (noteId == null) {
+            throw new NullException("noteId");
+        }
+        if (userId == null) {
+            throw new NullException("userId");
+        }
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ACCESS_RIGHTS_FROM_NOTES_BY_USER_ID)) {
+
+            int i = 1;
+            preparedStatement.setLong(i++, noteId);
+            preparedStatement.setLong(i++, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    try {
+                        Timetable.AccessRights accessRights = Timetable.AccessRights.valueOf(resultSet.getString("access_rights"));
+                        return accessRights;
+                    } catch (IllegalArgumentException e) {
+                        throw new ServiceException("Неизвестные права доступа у модели " + Timetable.class.getName() + ". ");
+                    }
+                } else {
+                    throw new NotFoundException();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DBException(e);
+        }
     }
 }

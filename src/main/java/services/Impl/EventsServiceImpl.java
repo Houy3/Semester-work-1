@@ -1,15 +1,12 @@
 package services.Impl;
 
-import exceptions.DBException;
-import exceptions.NotUniqueException;
-import exceptions.NullException;
-import exceptions.ServiceException;
+import exceptions.*;
 import models.Event;
 import models.Period;
-import repositories.EventsRepository;
-import repositories.PeriodsRepository;
-import services.EventsService;
-import services.PeriodService;
+import repositories.Inter.EventsRepository;
+import services.Inter.EventsService;
+import services.Inter.PeriodService;
+import services.ServiceImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +32,29 @@ public class EventsServiceImpl extends ServiceImpl implements EventsService {
         Event event = (Event) object;
         for (Period period : event.getPeriods()) {
             periodService.add(period);
+        }
+    }
+
+    @Override
+    public void change(Object object, String uniqueFieldName) throws NotUniqueException, NullException, ServiceException, NotFoundException, DBException {
+        super.change(object, uniqueFieldName);
+
+        Event event = (Event) object;
+        for (Period period : periodService.getByEventId(event.getNoteId())) {
+            periodService.delete(period, "id");
+        }
+        for (Period period : event.getPeriods()) {
+            periodService.add(period);
+        }
+    }
+
+    @Override
+    public void getByUniqueField(Object object, String uniqueFieldName) throws NotFoundException, ServiceException, DBException, NullException {
+        super.getByUniqueField(object, uniqueFieldName);
+
+        Event event = (Event) object;
+        for (Period period : periodService.getByEventId(event.getNoteId())) {
+            event.addPeriod(period);
         }
     }
 

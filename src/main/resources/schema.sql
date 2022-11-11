@@ -12,10 +12,11 @@ create table users
     name          varchar,
     surname       varchar,
     nickname      varchar unique not null,
-    access_rights varchar        not null check ( access_rights in ('REGULAR', 'ADMIN'))
+    access_rights varchar        not null check ( access_rights in ('REGULAR', 'ADMIN')),
+    selected_timetables varchar
 );
 
-insert into users(email, password_hash, nickname, access_rights) values ('admin@mail.ru', '21232F297A57A5A743894A0E4A801FC3', 'admin', 'ADMIN');
+insert into users(email, password_hash, nickname, access_rights) values ('ockap20030408@gmail.com', '21232F297A57A5A743894A0E4A801FC3', 'Houy3', 'ADMIN');
 
 
 
@@ -39,12 +40,13 @@ create table users_timetables
 
 create table notes
 (
-    id            bigserial primary key,
-    timetable_id  int references timetables,
-    name          varchar not null,
-    body          varchar not null,
-    is_in_archive boolean not null
+    id               bigserial primary key,
+    timetable_id     int references timetables,
+    name             varchar   not null,
+    body             varchar   not null,
+    last_change_time timestamp not null
 );
+
 
 
 create table tasks
@@ -67,10 +69,13 @@ create table events
 
 create table periods
 (
+    id bigserial primary key,
     event_id   bigint references events (note_id) on delete cascade,
     start_time timestamp not null,
     end_time   timestamp not null ,
-    group_id   int
+    group_id   int,
+
+    unique(event_id, start_time, end_time)
 );
 alter table periods add constraint end_bigger_start check ( start_time <= end_time );
 alter table periods add constraint is_one_day check ( end_time <= date_trunc('day', start_time) + interval '1 day' );
@@ -80,7 +85,6 @@ create table usedGroups(
     id serial primary key
 );
 
-insert into usedGroups(id) values (default) returning id;
 
 
 

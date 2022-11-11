@@ -4,16 +4,18 @@ import exceptions.DBException;
 import exceptions.NotFoundException;
 import exceptions.NullException;
 import exceptions.ServiceException;
-import models.Timetable;
-import repositories.PeriodsRepository;
+import models.Period;
+import models.User;
+import repositories.Inter.PeriodsRepository;
+import repositories.RepositoryImpl;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PeriodsRepositoryImpl extends RepositoryImpl implements PeriodsRepository {
 
@@ -60,4 +62,41 @@ public class PeriodsRepositoryImpl extends RepositoryImpl implements PeriodsRepo
         }
 
     }
+
+    private static final String SELECT_ALL_FROM_PERIODS_BY_EVENT_ID =
+            """
+            select * 
+            from periods p
+            where p.event_id = ?
+            """;
+    @Override
+    public List<Period> selectByEventId(Long eventId) throws NullException, ServiceException, DBException {
+        if (eventId == null) {
+            throw new NullException("eventId");
+        }
+
+        List<Period> periods = new ArrayList<>();
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_FROM_PERIODS_BY_EVENT_ID)) {
+
+            int i = 1;
+            preparedStatement.setLong(i++, eventId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Period period = new Period();
+                    objectInsertion(period, resultSet);
+                    System.out.println(period);
+                    periods.add(period);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DBException(e);
+        }
+
+        return periods;
+    }
+
+
 }

@@ -1,6 +1,6 @@
 package models;
 
-import jdbc.SQLAnnotations.*;
+import SQL.SQLAnnotations.*;
 
 import java.util.Objects;
 

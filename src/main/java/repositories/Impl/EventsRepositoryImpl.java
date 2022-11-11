@@ -5,8 +5,8 @@ import exceptions.NullException;
 import exceptions.ServiceException;
 import models.Event;
 import models.Period;
-import models.Task;
-import repositories.EventsRepository;
+import repositories.Inter.EventsRepository;
+import repositories.RepositoryImpl;
 
 import javax.sql.DataSource;
 import java.sql.*;

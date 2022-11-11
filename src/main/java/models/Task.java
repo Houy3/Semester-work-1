@@ -1,7 +1,7 @@
 package models;
 
 
-import jdbc.SQLAnnotations.*;
+import SQL.SQLAnnotations.*;
 
 import java.util.Date;
 import java.util.Objects;
