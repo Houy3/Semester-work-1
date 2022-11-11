@@ -1,74 +1,93 @@
 --drop database task_manager;
 --create database task_manager;
 
+drop schema if exists public cascade ;
 create schema public;
 
-create schema dictionary;
-
-create table dictionary.access_rights(
-  id serial primary key,
-  name varchar not null unique
-);
-insert into dictionary.access_rights(name) values ('REGULAR'),('ADMIN');
-
-create table users(
-    id serial primary key,
-    email varchar unique ,
-    password_hash varchar,
-    access_rights_id int references dictionary.access_rights
-);
-insert into users(email, password_hash, access_rights_id) values ('admin@mail.ru', '-969160600', 2);
-
-
-create table persons(
-    user_id int references users unique,
-    name varchar,
-    surname varchar,
-    nickname varchar
+create table users
+(
+    id            bigserial primary key,
+    email         varchar unique not null,
+    password_hash varchar        not null,
+    name          varchar,
+    surname       varchar,
+    nickname      varchar unique not null,
+    access_rights varchar        not null check ( access_rights in ('REGULAR', 'ADMIN')),
+    selected_timetables varchar
 );
 
-create table timetables(
-    id serial primary key,
-    user_id int references users,
-    name varchar
+insert into users(email, password_hash, nickname, access_rights) values ('ockap20030408@gmail.com', '21232F297A57A5A743894A0E4A801FC3', 'Houy3', 'ADMIN');
+
+
+
+create table timetables
+(
+    id   bigserial primary key,
+    name varchar not null
 );
 
-create table note_types(
-    id serial primary key,
-    name varchar
+
+
+create table users_timetables
+(
+    user_id       bigint references users (id) on delete cascade,
+    timetable_id  bigint references timetables (id) on delete cascade,
+    access_rights varchar check ( access_rights in ('READER', 'WRITER', 'OWNER') ),
+
+    unique (user_id, timetable_id)
 );
 
-create table task_manager.tasks(
-    id serial primary key,
-    timetable_id int references task_manager.timetables,
-    name varchar,
-    description varchar,
-    notification_start_time timestamp,
-    deadline_time timestamp,
-    type int references
+
+create table notes
+(
+    id               bigserial primary key,
+    timetable_id     int references timetables,
+    name             varchar   not null,
+    body             varchar   not null,
+    last_change_time timestamp not null
 );
 
-create table task_manager.events(
-    id serial primary key,
-    timetable_id int references task_manager.timetables,
-    name varchar,
-    description varchar,
-    start_time timestamp,
-    end_time timestamp
+
+
+create table tasks
+(
+    note_id                 bigint,-- primary key references notes (id) on delete cascade,
+    notification_start_date timestamp not null,
+    deadline_time           timestamp not null,
+    is_done                 boolean   not null
+);
+alter table tasks add constraint deadline_bigger_start check(notification_start_date <= tasks.deadline_time);
+alter table tasks add constraint notification_is_date check ( date_trunc('day', notification_start_date) = notification_start_date );
+
+create table events
+(
+    note_id bigint primary key references notes (id) on delete cascade,
+    place   varchar,
+    link    varchar
 );
 
-create table task_manager.repeatability(
-    id serial primary key,
-    name varchar not null unique
-);
 
-create table task_manager.periods(
-    event_id int references task_manager.events,
+create table periods
+(
+    id bigserial primary key,
+    event_id   bigint references events (note_id) on delete cascade,
     start_time timestamp not null,
-    end_time timestamp,
-    repeatability_id int references task_manager.repeatability,
-    count_of_repeats int
+    end_time   timestamp not null ,
+    group_id   int,
+
+    unique(event_id, start_time, end_time)
 );
+alter table periods add constraint end_bigger_start check ( start_time <= end_time );
+alter table periods add constraint is_one_day check ( end_time <= date_trunc('day', start_time) + interval '1 day' );
+
+
+create table usedGroups(
+    id serial primary key
+);
+
+
+
+
 
 
 

@@ -1,49 +1,73 @@
 package repositories.Impl;
 
-import Exceptions.DBException;
-import Exceptions.NotFoundException;
+import exceptions.DBException;
+import exceptions.NotFoundException;
+import exceptions.NullException;
+import exceptions.ServiceException;
 import models.User;
-import repositories.UsersRepository;
+import models.forms.UserSignUpForm;
+import repositories.Inter.UsersRepository;
+import repositories.RepositoryImpl;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersRepositoryImpl implements UsersRepository {
-
-    DataSource dataSource;
+public class UsersRepositoryImpl extends RepositoryImpl implements UsersRepository {
 
     public UsersRepositoryImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
+        super(dataSource);
     }
 
-    private static final String INSERT_USER = "insert into users(email, password_hash, access_rights_id) values (?, ?, ?);\n";
-    public void add(User user) throws DBException {
+    private static final String SELECT_ALL_FROM_USERS_BY_EMAIL_AND_PASSWORD =
+            """
+            select * 
+            from users u 
+            where u.email = ? 
+              and u.password_hash = ?
+            """;
+    public User selectUserBySignUpForm(UserSignUpForm userSignUpForm) throws DBException, NotFoundException, NullException, ServiceException {
+        if (userSignUpForm.getEmail() == null) {
+            throw new NullException("email");
+        }
+        if (userSignUpForm.getPasswordHash() == null) {
+            throw new NullException("password");
+        }
 
-        Long accessRights = get_access_rights_id_by_name(User.AccessRights.REGULAR);
-
+        User user = new User();
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_FROM_USERS_BY_EMAIL_AND_PASSWORD)) {
 
-            preparedStatement.setString(1, user.getEmail());
-            preparedStatement.setString(2, user.getPasswordHash());
-            preparedStatement.setLong(3, accessRights);
+            int i = 1;
+            preparedStatement.setString(i++, userSignUpForm.getEmail());
+            preparedStatement.setString(i++, userSignUpForm.getPasswordHash());
 
-            int affectedRows = preparedStatement.executeUpdate();
-            if (affectedRows != 1) {
-                throw new DBException("Аномалия: изменилось " + affectedRows + " строк. ");
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    objectInsertion(user, resultSet);
+                } else {
+                    throw new NotFoundException();
+                }
+                if (resultSet.next()) {
+                    throw new DBException("Аномалия: было найдено несколько пользователей при аутентификации. ");
+                }
             }
-
         } catch (SQLException e) {
             throw new DBException(e);
         }
+        return user;
     }
 
-
-    //SQL
-    private static final String SELECT_ALL_FROM_USERS = "SELECT u.id, u.email, ar.name access_rights FROM users u left join access_rights ar on u.access_rights_id = ar.id";
-    public List<User> getAllUsers() throws DBException{
+    private static final String SELECT_ALL_FROM_USERS =
+            """
+            select * 
+            from users
+            """;
+    public List<User> selectAllUsers() throws DBException, ServiceException {
         List<User> users = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
@@ -52,13 +76,7 @@ public class UsersRepositoryImpl implements UsersRepository {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     User user = new User();
-                    user.setId(resultSet.getLong("id"));
-                    user.setEmail(resultSet.getString("email"));
-                    try {
-                        user.setAccessRights(User.AccessRights.valueOf(resultSet.getString("access_rights")));
-                    } catch (IllegalArgumentException e) {
-                        throw new DBException("Неизвестные для модели права доступа " + resultSet.getString("email"));
-                    }
+                    objectInsertion(user, resultSet);
                     users.add(user);
                 }
             }
@@ -67,53 +85,5 @@ public class UsersRepositoryImpl implements UsersRepository {
         }
 
         return users;
-    }
-
-    private static final String SELECT_ID_AND_ACCESS_RIGHTS_FROM_USERS_BY_EMAIL_AND_PASSWORD =
-            "SELECT u.id, ar.name access_rights FROM users u left join access_rights ar on u.access_rights_id = ar.id " +
-            "WHERE u.email = ? AND u.password_hash = ?";
-    public void find_user_by_email_and_password(User user) throws DBException, NotFoundException {
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ID_AND_ACCESS_RIGHTS_FROM_USERS_BY_EMAIL_AND_PASSWORD)) {
-
-            preparedStatement.setString(1, user.getEmail());
-            preparedStatement.setString(2, user.getPasswordHash());
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    user.setId(resultSet.getLong("id"));
-                    try {
-                        user.setAccessRights(User.AccessRights.valueOf(resultSet.getString("access_rights")));
-                    } catch (IllegalArgumentException e) {
-                        throw new DBException("Неизвестные для модели права доступа " + resultSet.getString("email") + ". ");
-                    }
-                } else {
-                    throw new NotFoundException();
-                }
-            }
-        } catch (SQLException e) {
-            throw new DBException(e);
-        }
-    }
-
-
-
-    private static final String SELECT_ID_FROM_ACCESS_RIGHTS_BY_NAME = "select ar.id from access_rights ar where ar.name = ?";
-    private Long get_access_rights_id_by_name(User.AccessRights accessRights) throws DBException {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ID_FROM_ACCESS_RIGHTS_BY_NAME)) {
-
-            preparedStatement.setString(1, accessRights.name());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getLong("id");
-                } else {
-                    throw new DBException("Неизвестные для БД права доступа " + accessRights.name());
-                }
-            }
-        } catch (SQLException e) {
-            throw new DBException(e);
-        }
     }
 }

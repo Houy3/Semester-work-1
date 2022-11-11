@@ -3,32 +3,21 @@ package models.validators;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PasswordValidator implements Validator<String>{
-
-    private final String regex;
-    private final int minLength;
-    private final int maxLength;
-
-
-    public PasswordValidator(String regex, int minLength, int maxLength) {
-        this.regex = regex;
-        this.minLength = minLength;
-        this.maxLength = maxLength;
-    }
+public record PasswordValidator(String regex, int minLength, int maxLength) implements Validator<String>{
 
 
     @Override
     public void check(String object) throws IllegalArgumentException {
         if (object == null || object.equals("")) {
-            throw new IllegalArgumentException("Пароль не заполнен");
+            throw new IllegalArgumentException("Password is empty. ");
         }
 
         if (object.length() < minLength) {
-            throw new IllegalArgumentException("Пароль должен содержать не менее " + minLength + " символов");
+            throw new IllegalArgumentException("The password must contain at least " + minLength + " characters.");
         }
 
         if (object.length() > maxLength) {
-            throw new IllegalArgumentException("Пароль должен содержать не более " + maxLength + " символов");
+            throw new IllegalArgumentException("The password must contain no more than " + maxLength + " characters.");
         }
 
         Pattern pattern2 = Pattern.compile(regex);
@@ -36,10 +25,11 @@ public class PasswordValidator implements Validator<String>{
         if (!matcher2.find()) {
             throw new IllegalArgumentException(
                     """
-                    Разрешённые символы для пароля:
-                    - Заглавные латинские буквы: от A до Z
-                    - Строчные латинские буквы: от a до z
-                    - Цифры от 0 до 9""");
+                    Allowed characters for the password:
+                        - Capital Latin letters: from A to Z
+                        - Lowercase Latin letters: from a to z
+                        - Numbers from 0 to 9
+                    """);
         }
     }
 }
